@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../controllers/onboarding_controller.dart';
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_text_styles.dart';
+import '../../widgets/custom_button.dart';
 import 'onboarding_page.dart';
 
 class OnboardingScreen extends StatelessWidget {
@@ -200,32 +201,14 @@ class OnboardingScreen extends StatelessWidget {
   }
 
   // ====================================================
-  // FULL-WIDTH "GET STARTED" BUTTON (FOR SCREEN 3)
+  // FULL-WIDTH "GET STARTED" BUTTON (FOR SCREEN 3 - Reusable CustomButton)
   // ====================================================
   Widget _buildGetStartedButton(OnboardingController controller) {
-    return GestureDetector(
-      onTap: controller.getStarted,
-      child: Container(
-        width: double.infinity,
-        height: 56.0,
-        decoration: BoxDecoration(
-          color: AppColors.primaryOrange,
-          borderRadius: BorderRadius.circular(28.0),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.primaryOrange.withValues(alpha: 0.35),
-              blurRadius: 18.0,
-              spreadRadius: 0.0,
-              offset: const Offset(0, 6.0),
-            ),
-          ],
-        ),
-        alignment: Alignment.center,
-        child: const Text(
-          "Get Started",
-          style: AppTextStyles.getStartedButton,
-        ),
-      ),
+    return CustomButton(
+      text: "Get Started",
+      height: 40.0,
+      icon: Icons.arrow_forward_rounded,
+      onPressed: controller.getStarted,
     );
   }
 }

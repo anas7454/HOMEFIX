@@ -15,24 +15,19 @@ class AuthController extends GetxController {
   final RxBool isLoading = false.obs;
 
   // Phone Auth State
-  final phoneController = TextEditingController(text: '98765 43210');
+  final phoneController = TextEditingController();
   final RxString selectedCountryCode = '+91'.obs;
   final RxString countryFlag = '🇮🇳'.obs;
 
-  // OTP State
-  final RxList<String> otpDigits = List.generate(6, (index) => '').obs;
+  // OTP State (4 digits)
+  final RxList<String> otpDigits = List.generate(4, (index) => '').obs;
   final RxInt resendSeconds = 25.obs;
   final RxBool canResend = false.obs;
   Timer? _resendTimer;
 
-  // Pre-fill initial OTP for instant testing matching mockup: 2, 4, 6, 8, 1, 0
-  final List<String> initialMockOtp = ['2', '4', '6', '8', '1', '0'];
-
-  @override
-  void onInit() {
-    super.onInit();
-    for (int i = 0; i < 6; i++) {
-      otpDigits[i] = initialMockOtp[i];
+  void resetOtp() {
+    for (int i = 0; i < 4; i++) {
+      otpDigits[i] = '';
     }
   }
 
@@ -56,30 +51,45 @@ class AuthController extends GetxController {
     startResendTimer();
     Helpers.showSnackbar(
       title: 'OTP Sent',
-      message: 'A new 6-digit OTP has been sent to ${selectedCountryCode.value} ${phoneController.text.trim()}',
+      message:
+          'A new 4-digit OTP has been sent to ${selectedCountryCode.value} ${phoneController.text.trim()}',
     );
   }
 
   void sendOtp() {
-    final phone = phoneController.text.trim();
+    // Remove any spaces if entered
+    final phone = phoneController.text.trim().replaceAll(' ', '');
+
     if (phone.isEmpty) {
       Helpers.showSnackbar(
-        title: 'Phone Required',
-        message: 'Please enter your phone number to continue.',
+        title: 'Error',
+        message: 'Enter the number',
         isError: true,
       );
       return;
     }
 
+    // Indian phone numbers: exactly 10 digits, starts with 6, 7, 8, or 9
+    final indianPhoneRegex = RegExp(r'^[6-9]\d{9}$');
+    if (!indianPhoneRegex.hasMatch(phone)) {
+      Helpers.showSnackbar(
+        title: 'Error',
+        message: 'Enter a valid number',
+        isError: true,
+      );
+      return;
+    }
+
+    resetOtp();
     startResendTimer();
     Get.toNamed(AppRoutes.otp);
   }
 
   Future<void> verifyOtp(String enteredOtp) async {
-    if (enteredOtp.length < 6) {
+    if (enteredOtp.length < 4) {
       Helpers.showSnackbar(
         title: 'Invalid OTP',
-        message: 'Please enter all 6 digits of the verification code.',
+        message: 'Please enter all 4 digits of the verification code.',
         isError: true,
       );
       return;
@@ -98,7 +108,7 @@ class AuthController extends GetxController {
         title: 'Success',
         message: 'Phone verified successfully!',
       );
-      Get.offAllNamed(AppRoutes.dashboard);
+      Get.toNamed(AppRoutes.roleSelection);
     } catch (e) {
       Helpers.showSnackbar(title: 'Error', message: e.toString(), isError: true);
     } finally {
@@ -119,7 +129,7 @@ class AuthController extends GetxController {
         title: 'Success',
         message: 'Signed in with Google successfully!',
       );
-      Get.offAllNamed(AppRoutes.dashboard);
+      Get.toNamed(AppRoutes.roleSelection);
     } catch (e) {
       Helpers.showSnackbar(title: 'Error', message: e.toString(), isError: true);
     } finally {
