@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../controllers/work_details_controller.dart';
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_text_styles.dart';
+import '../../core/constants/app_sizes.dart';
 import '../../widgets/custom_button.dart';
 
 class WorkDetailsScreen extends StatelessWidget {
@@ -18,12 +19,12 @@ class WorkDetailsScreen extends StatelessWidget {
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.dark,
         statusBarBrightness: Brightness.light,
-        systemNavigationBarColor: Color(0xFFFFFDFB),
+        systemNavigationBarColor: AppColors.bgWarm,
         systemNavigationBarDividerColor: Colors.transparent,
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
       child: Scaffold(
-        backgroundColor: const Color(0xFFFFFDFB),
+        backgroundColor: AppColors.bgGradientTop,
         body: SafeArea(
           child: Column(
             children: [
@@ -31,23 +32,26 @@ class WorkDetailsScreen extends StatelessWidget {
               // TOP APP BAR (Back Button + Step Progress Bar + "4/6")
               // ========================================================
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSizes.p16,
+                  vertical: AppSizes.p8,
+                ),
                 child: Row(
                   children: [
                     // Back Button
                     InkWell(
                       onTap: () => Get.back(),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(AppSizes.r20),
                       child: const Padding(
-                        padding: EdgeInsets.all(6.0),
+                        padding: EdgeInsets.all(AppSizes.p6),
                         child: Icon(
                           Icons.arrow_back_rounded,
-                          size: 24.0,
-                          color: Color(0xFF0F172A),
+                          size: AppSizes.iconLg,
+                          color: AppColors.iconDark,
                         ),
                       ),
                     ),
-                    const SizedBox(width: 16.0),
+                    const SizedBox(width: AppSizes.p16),
 
                     // Progress Bar (4/6)
                     Expanded(
@@ -56,8 +60,8 @@ class WorkDetailsScreen extends StatelessWidget {
                           height: 7.0,
                           constraints: const BoxConstraints(maxWidth: 160.0),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFFFE8D6),
-                            borderRadius: BorderRadius.circular(10.0),
+                            color: AppColors.peachGlow2,
+                            borderRadius: BorderRadius.circular(AppSizes.r10),
                           ),
                           child: Align(
                             alignment: Alignment.centerLeft,
@@ -66,7 +70,7 @@ class WorkDetailsScreen extends StatelessWidget {
                               child: Container(
                                 decoration: BoxDecoration(
                                   color: AppColors.primaryOrange,
-                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderRadius: BorderRadius.circular(AppSizes.r10),
                                 ),
                               ),
                             ),
@@ -75,17 +79,12 @@ class WorkDetailsScreen extends StatelessWidget {
                       ),
                     ),
 
-                    const SizedBox(width: 16.0),
+                    const SizedBox(width: AppSizes.p16),
 
                     // Step Indicator Text (4/6)
                     const Text(
                       '4/6',
-                      style: TextStyle(
-                        fontFamily: AppTextStyles.fontFamily,
-                        fontSize: 14.5,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.primaryOrange,
-                      ),
+                      style: AppTextStyles.stepIndicatorOrange,
                     ),
                   ],
                 ),
@@ -96,40 +95,26 @@ class WorkDetailsScreen extends StatelessWidget {
               // ========================================================
               Expanded(
                 child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  physics: const ClampingScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: AppSizes.p20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 12.0),
+                      const SizedBox(height: AppSizes.p12),
 
                       // Title
                       const Text(
                         'Work Details',
-                        style: TextStyle(
-                          fontFamily: AppTextStyles.fontFamily,
-                          fontSize: 26.0,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF0F172A),
-                          letterSpacing: -0.5,
-                          height: 1.2,
-                        ),
+                        style: AppTextStyles.basicInfoTitle,
                       ),
-                      const SizedBox(height: 6.0),
+                      const SizedBox(height: AppSizes.p6),
 
                       // Subtitle
                       const Text(
                         'Tell us about your experience\nand service details.',
-                        style: TextStyle(
-                          fontFamily: AppTextStyles.fontFamily,
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.w400,
-                          color: Color(0xFF64748B),
-                          height: 1.35,
-                          letterSpacing: -0.1,
-                        ),
+                        style: AppTextStyles.basicInfoSubtitle,
                       ),
-                      const SizedBox(height: 20.0),
+                      const SizedBox(height: AppSizes.p20),
 
                       // 1. Experience *
                       Obx(
@@ -147,7 +132,7 @@ class WorkDetailsScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 12.0),
+                      const SizedBox(height: AppSizes.p12),
 
                       // 2. Service Area *
                       Obx(
@@ -165,11 +150,11 @@ class WorkDetailsScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 12.0),
+                      const SizedBox(height: AppSizes.p12),
 
                       // 3. Starting Price * & Rate Unit
                       _StartingPriceCard(controller: controller),
-                      const SizedBox(height: 12.0),
+                      const SizedBox(height: AppSizes.p12),
 
                       // 4. Working Hours
                       Obx(
@@ -187,42 +172,32 @@ class WorkDetailsScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 18.0),
+                      const SizedBox(height: AppSizes.p18),
 
                       // 5. About Yourself *
                       Row(
                         children: const [
                           Text(
                             'About Yourself',
-                            style: TextStyle(
-                              fontFamily: AppTextStyles.fontFamily,
-                              fontSize: 14.0,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF0F172A),
-                            ),
+                            style: AppTextStyles.workDetailsFieldLabel,
                           ),
                           Text(
                             ' *',
-                            style: TextStyle(
-                              fontFamily: AppTextStyles.fontFamily,
-                              fontSize: 14.0,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.primaryOrange,
-                            ),
+                            style: AppTextStyles.workDetailsFieldRequired,
                           ),
                         ],
                       ),
-                      const SizedBox(height: 8.0),
+                      const SizedBox(height: AppSizes.p8),
 
                       // About Yourself Multiline Card
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.all(14.0),
+                        padding: const EdgeInsets.all(AppSizes.p14),
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16.0),
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(AppSizes.r16),
                           border: Border.all(
-                            color: const Color(0xFFE8EEF5),
+                            color: AppColors.borderLight,
                             width: 1.2,
                           ),
                           boxShadow: [
@@ -240,13 +215,7 @@ class WorkDetailsScreen extends StatelessWidget {
                               controller: controller.aboutController,
                               maxLines: 4,
                               maxLength: 300,
-                              style: const TextStyle(
-                                fontFamily: AppTextStyles.fontFamily,
-                                fontSize: 13.5,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFF334155),
-                                height: 1.45,
-                              ),
+                              style: AppTextStyles.workDetailsAboutInput,
                               buildCounter: (
                                 context, {
                                 required currentLength,
@@ -257,12 +226,7 @@ class WorkDetailsScreen extends StatelessWidget {
                                   alignment: Alignment.centerRight,
                                   child: Text(
                                     '$currentLength/$maxLength',
-                                    style: const TextStyle(
-                                      fontFamily: AppTextStyles.fontFamily,
-                                      fontSize: 11.5,
-                                      fontWeight: FontWeight.w500,
-                                      color: Color(0xFF94A3B8),
-                                    ),
+                                    style: AppTextStyles.termsPrompt,
                                   ),
                                 );
                               },
@@ -270,12 +234,7 @@ class WorkDetailsScreen extends StatelessWidget {
                                 isDense: true,
                                 contentPadding: EdgeInsets.zero,
                                 hintText: 'Write about your background, skills and experience...',
-                                hintStyle: TextStyle(
-                                  fontFamily: AppTextStyles.fontFamily,
-                                  fontSize: 13.5,
-                                  fontWeight: FontWeight.w400,
-                                  color: Color(0xFF94A3B8),
-                                ),
+                                hintStyle: AppTextStyles.phoneHint,
                                 border: InputBorder.none,
                                 enabledBorder: InputBorder.none,
                                 focusedBorder: InputBorder.none,
@@ -285,7 +244,7 @@ class WorkDetailsScreen extends StatelessWidget {
                         ),
                       ),
 
-                      const SizedBox(height: 24.0),
+                      const SizedBox(height: AppSizes.p24),
                     ],
                   ),
                 ),
@@ -295,12 +254,16 @@ class WorkDetailsScreen extends StatelessWidget {
               // REUSABLE BOTTOM CONTINUE BUTTON
               // ========================================================
               Padding(
-                padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 16.0),
+                padding: const EdgeInsets.fromLTRB(
+                  AppSizes.p20,
+                  AppSizes.p10,
+                  AppSizes.p20,
+                  AppSizes.p16,
+                ),
                 child: Obx(
                   () => CustomButton(
                     text: 'Continue',
-                    height: 50.0,
-                    borderRadius: 25.0,
+                    height: AppSizes.buttonHeightSm,
                     icon: Icons.arrow_forward_rounded,
                     isLoading: controller.isLoading.value,
                     onPressed: controller.onContinue,
@@ -324,14 +287,17 @@ class WorkDetailsScreen extends StatelessWidget {
   }) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppSizes.r24)),
       ),
       builder: (context) {
         return SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSizes.p20,
+              vertical: AppSizes.p20,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -341,34 +307,26 @@ class WorkDetailsScreen extends StatelessWidget {
                     width: 40.0,
                     height: 4.0,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE2E8F0),
-                      borderRadius: BorderRadius.circular(2.0),
+                      color: AppColors.border,
+                      borderRadius: BorderRadius.circular(AppSizes.p2),
                     ),
                   ),
                 ),
-                const SizedBox(height: 16.0),
+                const SizedBox(height: AppSizes.p16),
                 Text(
                   title,
-                  style: const TextStyle(
-                    fontFamily: AppTextStyles.fontFamily,
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF0F172A),
-                  ),
+                  style: AppTextStyles.bottomSheetTitle,
                 ),
-                const SizedBox(height: 12.0),
+                const SizedBox(height: AppSizes.p12),
                 ...options.map((option) {
                   final isSelected = selectedValue == option;
                   return ListTile(
                     contentPadding: EdgeInsets.zero,
                     title: Text(
                       option,
-                      style: TextStyle(
-                        fontFamily: AppTextStyles.fontFamily,
-                        fontSize: 15.0,
-                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                        color: isSelected ? AppColors.primaryOrange : const Color(0xFF0F172A),
-                      ),
+                      style: isSelected
+                          ? AppTextStyles.bottomSheetItemSelected
+                          : AppTextStyles.bottomSheetItem,
                     ),
                     trailing: isSelected
                         ? const Icon(Icons.check_circle_rounded, color: AppColors.primaryOrange)
@@ -400,12 +358,15 @@ class _StartingPriceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSizes.p14,
+        vertical: AppSizes.p10,
+      ),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.0),
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppSizes.r16),
         border: Border.all(
-          color: const Color(0xFFE8EEF5),
+          color: AppColors.borderLight,
           width: 1.2,
         ),
         boxShadow: [
@@ -423,26 +384,21 @@ class _StartingPriceCard extends StatelessWidget {
             width: 42.0,
             height: 42.0,
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(12.0),
+              color: AppColors.surfaceLight,
+              borderRadius: BorderRadius.circular(AppSizes.r12),
               border: Border.all(
-                color: const Color(0xFFE2E8F0),
+                color: AppColors.border,
                 width: 1.0,
               ),
             ),
             child: const Center(
               child: Text(
                 '₹',
-                style: TextStyle(
-                  fontFamily: AppTextStyles.fontFamily,
-                  fontSize: 18.0,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF475569),
-                ),
+                style: AppTextStyles.workDetailsCurrencySymbol,
               ),
             ),
           ),
-          const SizedBox(width: 14.0),
+          const SizedBox(width: AppSizes.p14),
 
           // Price Field Section
           Expanded(
@@ -452,35 +408,20 @@ class _StartingPriceCard extends StatelessWidget {
               children: [
                 const Text(
                   'Starting Price *',
-                  style: TextStyle(
-                    fontFamily: AppTextStyles.fontFamily,
-                    fontSize: 12.0,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF64748B),
-                  ),
+                  style: AppTextStyles.inputCardLabel,
                 ),
-                const SizedBox(height: 2.0),
+                const SizedBox(height: AppSizes.p2),
                 Row(
                   children: [
                     const Text(
                       '₹ ',
-                      style: TextStyle(
-                        fontFamily: AppTextStyles.fontFamily,
-                        fontSize: 15.0,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF0F172A),
-                      ),
+                      style: AppTextStyles.workDetailsPricePrefix,
                     ),
                     Expanded(
                       child: TextFormField(
                         controller: controller.priceController,
                         keyboardType: TextInputType.number,
-                        style: const TextStyle(
-                          fontFamily: AppTextStyles.fontFamily,
-                          fontSize: 15.0,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF0F172A),
-                        ),
+                        style: AppTextStyles.workDetailsPriceInput,
                         decoration: const InputDecoration(
                           isDense: true,
                           contentPadding: EdgeInsets.zero,
@@ -502,14 +443,17 @@ class _StartingPriceCard extends StatelessWidget {
             onTap: () {
               showModalBottomSheet(
                 context: context,
-                backgroundColor: Colors.white,
+                backgroundColor: AppColors.surface,
                 shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(AppSizes.r24)),
                 ),
                 builder: (context) {
                   return SafeArea(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSizes.p20,
+                        vertical: AppSizes.p20,
+                      ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -519,36 +463,26 @@ class _StartingPriceCard extends StatelessWidget {
                               width: 40.0,
                               height: 4.0,
                               decoration: BoxDecoration(
-                                color: const Color(0xFFE2E8F0),
-                                borderRadius: BorderRadius.circular(2.0),
+                                color: AppColors.border,
+                                borderRadius: BorderRadius.circular(AppSizes.p2),
                               ),
                             ),
                           ),
-                          const SizedBox(height: 16.0),
+                          const SizedBox(height: AppSizes.p16),
                           const Text(
                             'Select Pricing Model',
-                            style: TextStyle(
-                              fontFamily: AppTextStyles.fontFamily,
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF0F172A),
-                            ),
+                            style: AppTextStyles.bottomSheetTitle,
                           ),
-                          const SizedBox(height: 12.0),
+                          const SizedBox(height: AppSizes.p12),
                           ...controller.rateUnitOptions.map((unit) {
                             final isSelected = controller.selectedRateUnit.value == unit;
                             return ListTile(
                               contentPadding: EdgeInsets.zero,
                               title: Text(
                                 unit,
-                                style: TextStyle(
-                                  fontFamily: AppTextStyles.fontFamily,
-                                  fontSize: 15.0,
-                                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                                  color: isSelected
-                                      ? AppColors.primaryOrange
-                                      : const Color(0xFF0F172A),
-                                ),
+                                style: isSelected
+                                    ? AppTextStyles.bottomSheetItemSelected
+                                    : AppTextStyles.bottomSheetItem,
                               ),
                               trailing: isSelected
                                   ? const Icon(Icons.check_circle_rounded,
@@ -568,12 +502,15 @@ class _StartingPriceCard extends StatelessWidget {
               );
             },
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSizes.p10,
+                vertical: AppSizes.p6,
+              ),
               decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.circular(10.0),
+                color: AppColors.surfaceLight,
+                borderRadius: BorderRadius.circular(AppSizes.r10),
                 border: Border.all(
-                  color: const Color(0xFFE2E8F0),
+                  color: AppColors.border,
                   width: 1.0,
                 ),
               ),
@@ -583,18 +520,13 @@ class _StartingPriceCard extends StatelessWidget {
                   Obx(
                     () => Text(
                       controller.selectedRateUnit.value,
-                      style: const TextStyle(
-                        fontFamily: AppTextStyles.fontFamily,
-                        fontSize: 12.0,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF475569),
-                      ),
+                      style: AppTextStyles.workDetailsRateUnit,
                     ),
                   ),
-                  const SizedBox(width: 4.0),
+                  const SizedBox(width: AppSizes.p4),
                   const Icon(
                     Icons.keyboard_arrow_down_rounded,
-                    color: Color(0xFF64748B),
+                    color: AppColors.iconMuted,
                     size: 18.0,
                   ),
                 ],
@@ -632,12 +564,15 @@ class _WorkInputFieldCard extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSizes.p14,
+          vertical: AppSizes.p10,
+        ),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16.0),
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(AppSizes.r16),
           border: Border.all(
-            color: const Color(0xFFE8EEF5),
+            color: AppColors.borderLight,
             width: 1.2,
           ),
           boxShadow: [
@@ -655,22 +590,22 @@ class _WorkInputFieldCard extends StatelessWidget {
               width: 42.0,
               height: 42.0,
               decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.circular(12.0),
+                color: AppColors.surfaceLight,
+                borderRadius: BorderRadius.circular(AppSizes.r12),
                 border: Border.all(
-                  color: const Color(0xFFE2E8F0),
+                  color: AppColors.border,
                   width: 1.0,
                 ),
               ),
               child: Center(
                 child: Icon(
                   icon,
-                  size: 20.0,
-                  color: const Color(0xFF475569),
+                  size: AppSizes.iconMd,
+                  color: AppColors.iconSlate,
                 ),
               ),
             ),
-            const SizedBox(width: 14.0),
+            const SizedBox(width: AppSizes.p14),
 
             // Middle Text
             Expanded(
@@ -680,22 +615,12 @@ class _WorkInputFieldCard extends StatelessWidget {
                 children: [
                   Text(
                     label,
-                    style: const TextStyle(
-                      fontFamily: AppTextStyles.fontFamily,
-                      fontSize: 12.0,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF64748B),
-                    ),
+                    style: AppTextStyles.inputCardLabel,
                   ),
-                  const SizedBox(height: 2.0),
+                  const SizedBox(height: AppSizes.p2),
                   Text(
                     valueText,
-                    style: const TextStyle(
-                      fontFamily: AppTextStyles.fontFamily,
-                      fontSize: 15.0,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF0F172A),
-                    ),
+                    style: AppTextStyles.inputCardValue,
                   ),
                 ],
               ),
@@ -704,10 +629,10 @@ class _WorkInputFieldCard extends StatelessWidget {
             // Trailing Dropdown Arrow
             if (showDropdownArrow)
               const Padding(
-                padding: EdgeInsets.only(left: 8.0, right: 4.0),
+                padding: EdgeInsets.only(left: AppSizes.p8, right: AppSizes.p4),
                 child: Icon(
                   Icons.keyboard_arrow_down_rounded,
-                  color: Color(0xFF475569),
+                  color: AppColors.iconSlate,
                   size: 22.0,
                 ),
               ),

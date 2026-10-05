@@ -5,6 +5,7 @@ import '../../controllers/auth_controller.dart';
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_text_styles.dart';
 import '../../core/constants/app_assets.dart';
+import '../../core/constants/app_sizes.dart';
 import '../../widgets/custom_button.dart';
 
 class AuthScreen extends StatelessWidget {
@@ -19,7 +20,7 @@ class AuthScreen extends StatelessWidget {
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.dark,
         statusBarBrightness: Brightness.light,
-        systemNavigationBarColor: Colors.white,
+        systemNavigationBarColor: AppColors.surface,
         systemNavigationBarDividerColor: Colors.transparent,
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
@@ -27,7 +28,7 @@ class AuthScreen extends StatelessWidget {
         onTap: () => FocusScope.of(context).unfocus(),
         behavior: HitTestBehavior.translucent,
         child: Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.background,
           body: Stack(
             children: [
               // ========================================================
@@ -73,10 +74,10 @@ class AuthScreen extends StatelessWidget {
                 child: Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.surface,
                     borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(32.0),
-                      topRight: Radius.circular(32.0),
+                      topLeft: Radius.circular(AppSizes.r32),
+                      topRight: Radius.circular(AppSizes.r32),
                     ),
                     boxShadow: [
                       BoxShadow(
@@ -90,7 +91,12 @@ class AuthScreen extends StatelessWidget {
                     top: false,
                     child: SingleChildScrollView(
                       physics: const ClampingScrollPhysics(),
-                      padding: const EdgeInsets.fromLTRB(24.0, 24.0, 24.0, 16.0),
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSizes.p24,
+                        AppSizes.p24,
+                        AppSizes.p24,
+                        AppSizes.p16,
+                      ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -101,7 +107,7 @@ class AuthScreen extends StatelessWidget {
                             textAlign: TextAlign.center,
                             style: AppTextStyles.authCardTitle,
                           ),
-                          const SizedBox(height: 6.0),
+                          const SizedBox(height: AppSizes.p6),
 
                           // Card Subtitle
                           const Text(
@@ -109,23 +115,23 @@ class AuthScreen extends StatelessWidget {
                             textAlign: TextAlign.center,
                             style: AppTextStyles.authCardSubtitle,
                           ),
-                          const SizedBox(height: 20.0),
+                          const SizedBox(height: AppSizes.p20),
 
                           // Phone Input Field (Max 10 Indian Digits)
                           _buildPhoneInputField(authController),
-                          const SizedBox(height: 16.0),
+                          const SizedBox(height: AppSizes.p16),
 
                           // Reusable Continue Button (Height 40px)
                           _buildContinueButton(authController),
-                          const SizedBox(height: 16.0),
+                          const SizedBox(height: AppSizes.p16),
 
                           // OR Divider
                           _buildOrDivider(),
-                          const SizedBox(height: 16.0),
+                          const SizedBox(height: AppSizes.p16),
 
                           // Continue with Google Button
                           _buildGoogleButton(authController),
-                          const SizedBox(height: 16.0),
+                          const SizedBox(height: AppSizes.p16),
 
                           // Terms & Privacy Footer
                           _buildTermsAndPrivacy(),
@@ -147,16 +153,16 @@ class AuthScreen extends StatelessWidget {
   // ====================================================
   Widget _buildPhoneInputField(AuthController controller) {
     return Container(
-      height: 44.0,
+      height: AppSizes.inputHeight,
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(12.0),
+        color: AppColors.inputBg,
+        borderRadius: BorderRadius.circular(AppSizes.r12),
         border: Border.all(
-          color: const Color(0xFFE2E8F0),
+          color: AppColors.border,
           width: 1.1,
         ),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: AppSizes.p12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -169,21 +175,16 @@ class AuthScreen extends StatelessWidget {
                   controller.countryFlag.value,
                   style: const TextStyle(fontSize: 18.0),
                 ),
-                const SizedBox(width: 6.0),
+                const SizedBox(width: AppSizes.p6),
                 Text(
                   controller.selectedCountryCode.value,
-                  style: const TextStyle(
-                    fontFamily: AppTextStyles.fontFamily,
-                    fontSize: 14.0,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textTitle,
-                  ),
+                  style: AppTextStyles.countryCode,
                 ),
                 const SizedBox(width: 3.0),
                 const Icon(
                   Icons.keyboard_arrow_down_rounded,
-                  size: 16.0,
-                  color: Color(0xFF64748B),
+                  size: AppSizes.iconSm,
+                  color: AppColors.iconMuted,
                 ),
               ],
             ),
@@ -193,8 +194,8 @@ class AuthScreen extends StatelessWidget {
           Container(
             width: 1.0,
             height: 20.0,
-            margin: const EdgeInsets.symmetric(horizontal: 10.0),
-            color: const Color(0xFFE2E8F0),
+            margin: const EdgeInsets.symmetric(horizontal: AppSizes.p10),
+            color: AppColors.divider,
           ),
 
           // Phone Number Input (Strict 10 Digits)
@@ -207,22 +208,10 @@ class AuthScreen extends StatelessWidget {
                 FilteringTextInputFormatter.digitsOnly,
                 LengthLimitingTextInputFormatter(10),
               ],
-              style: const TextStyle(
-                fontFamily: AppTextStyles.fontFamily,
-                fontSize: 14.0,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textTitle,
-                letterSpacing: 0.4,
-              ),
+              style: AppTextStyles.phoneInput,
               decoration: const InputDecoration(
                 hintText: "Enter 10-digit number",
-                hintStyle: TextStyle(
-                  fontFamily: AppTextStyles.fontFamily,
-                  fontSize: 13.5,
-                  fontWeight: FontWeight.w400,
-                  color: Color(0xFF94A3B8),
-                  letterSpacing: 0.0,
-                ),
+                hintStyle: AppTextStyles.phoneHint,
                 counterText: "",
                 border: InputBorder.none,
                 isDense: true,
@@ -242,7 +231,7 @@ class AuthScreen extends StatelessWidget {
     return Obx(
       () => CustomButton(
         text: "Continue",
-        height: 40.0,
+        height: AppSizes.buttonHeightSm,
         icon: Icons.arrow_forward_rounded,
         isLoading: controller.isLoading.value,
         onPressed: controller.sendOtp,
@@ -258,26 +247,20 @@ class AuthScreen extends StatelessWidget {
       children: [
         Expanded(
           child: Divider(
-            color: Color(0xFFE2E8F0),
+            color: AppColors.divider,
             thickness: 1.0,
           ),
         ),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 14.0),
+          padding: EdgeInsets.symmetric(horizontal: AppSizes.p14),
           child: Text(
             "OR",
-            style: TextStyle(
-              fontFamily: AppTextStyles.fontFamily,
-              fontSize: 12.0,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF94A3B8),
-              letterSpacing: 0.5,
-            ),
+            style: AppTextStyles.orDivider,
           ),
         ),
         Expanded(
           child: Divider(
-            color: Color(0xFFE2E8F0),
+            color: AppColors.divider,
             thickness: 1.0,
           ),
         ),
@@ -293,12 +276,12 @@ class AuthScreen extends StatelessWidget {
       onTap: controller.loginWithGoogle,
       child: Container(
         width: double.infinity,
-        height: 52.0,
+        height: AppSizes.buttonHeightLg,
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(26.0),
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(AppSizes.r26),
           border: Border.all(
-            color: const Color(0xFFE2E8F0),
+            color: AppColors.border,
             width: 1.2,
           ),
         ),
@@ -307,15 +290,10 @@ class AuthScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _buildGoogleGLogo(),
-            const SizedBox(width: 10.0),
+            const SizedBox(width: AppSizes.p10),
             const Text(
               "Continue with Google",
-              style: TextStyle(
-                fontFamily: AppTextStyles.fontFamily,
-                fontSize: 14.5,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textTitle,
-              ),
+              style: AppTextStyles.googleButtonText,
             ),
           ],
         ),
@@ -328,8 +306,8 @@ class AuthScreen extends StatelessWidget {
   // ====================================================
   Widget _buildGoogleGLogo() {
     return SizedBox(
-      width: 20.0,
-      height: 20.0,
+      width: AppSizes.p20,
+      height: AppSizes.p20,
       child: CustomPaint(
         painter: _GoogleLogoPainter(),
       ),
@@ -345,14 +323,9 @@ class AuthScreen extends StatelessWidget {
         const Text(
           "By continuing, you agree to our",
           textAlign: TextAlign.center,
-          style: TextStyle(
-            fontFamily: AppTextStyles.fontFamily,
-            fontSize: 11.5,
-            fontWeight: FontWeight.w400,
-            color: Color(0xFF64748B),
-          ),
+          style: AppTextStyles.termsPrompt,
         ),
-        const SizedBox(height: 2.0),
+        const SizedBox(height: AppSizes.p2),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -360,35 +333,18 @@ class AuthScreen extends StatelessWidget {
               onTap: () {},
               child: const Text(
                 "Terms of Service",
-                style: TextStyle(
-                  fontFamily: AppTextStyles.fontFamily,
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textTitle,
-                  decoration: TextDecoration.underline,
-                ),
+                style: AppTextStyles.termsLink,
               ),
             ),
             const Text(
               " and ",
-              style: TextStyle(
-                fontFamily: AppTextStyles.fontFamily,
-                fontSize: 11.5,
-                fontWeight: FontWeight.w400,
-                color: Color(0xFF64748B),
-              ),
+              style: AppTextStyles.termsPrompt,
             ),
             GestureDetector(
               onTap: () {},
               child: const Text(
                 "Privacy Policy",
-                style: TextStyle(
-                  fontFamily: AppTextStyles.fontFamily,
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textTitle,
-                  decoration: TextDecoration.underline,
-                ),
+                style: AppTextStyles.termsLink,
               ),
             ),
           ],
@@ -399,7 +355,7 @@ class AuthScreen extends StatelessWidget {
 }
 
 // ====================================================
-// VECTOR GOOGLE 'G' PAINTER
+// VECTOR GOOGLE 'G' PAINTER (Using AppColors)
 // ====================================================
 class _GoogleLogoPainter extends CustomPainter {
   @override
@@ -411,7 +367,7 @@ class _GoogleLogoPainter extends CustomPainter {
 
     // Red Arc
     final redPaint = Paint()
-      ..color = const Color(0xFFEA4335)
+      ..color = AppColors.googleRed
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.5;
     canvas.drawArc(
@@ -424,7 +380,7 @@ class _GoogleLogoPainter extends CustomPainter {
 
     // Yellow Arc
     final yellowPaint = Paint()
-      ..color = const Color(0xFFFBBC05)
+      ..color = AppColors.googleYellow
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.5;
     canvas.drawArc(
@@ -437,7 +393,7 @@ class _GoogleLogoPainter extends CustomPainter {
 
     // Green Arc
     final greenPaint = Paint()
-      ..color = const Color(0xFF34A853)
+      ..color = AppColors.googleGreen
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.5;
     canvas.drawArc(
@@ -450,7 +406,7 @@ class _GoogleLogoPainter extends CustomPainter {
 
     // Blue Arc & Bar
     final bluePaint = Paint()
-      ..color = const Color(0xFF4285F4)
+      ..color = AppColors.googleBlue
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.5;
     canvas.drawArc(
@@ -462,7 +418,7 @@ class _GoogleLogoPainter extends CustomPainter {
     );
 
     final blueBarPaint = Paint()
-      ..color = const Color(0xFF4285F4)
+      ..color = AppColors.googleBlue
       ..style = PaintingStyle.fill;
     canvas.drawRect(
       Rect.fromLTWH(w / 2 - 1, h / 2 - 1.75, w / 2 + 1, 3.5),

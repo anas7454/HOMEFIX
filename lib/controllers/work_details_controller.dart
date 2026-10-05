@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../app/routes/app_routes.dart';
+import '../core/utils/helpers.dart';
 
 class WorkDetailsController extends GetxController {
   final RxString selectedExperience = '5+ Years'.obs;
@@ -71,14 +72,9 @@ class WorkDetailsController extends GetxController {
 
   void onContinue() {
     if (aboutController.text.trim().isEmpty) {
-      Get.snackbar(
-        'Required Field',
-        'Please write a brief description about yourself',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xFF0F172A),
-        colorText: Colors.white,
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
+      Helpers.showSnackbar(
+        message: 'Please write a brief description about yourself',
+        isError: true,
       );
       return;
     }

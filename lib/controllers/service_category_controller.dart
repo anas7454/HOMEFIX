@@ -1,20 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../app/routes/app_routes.dart';
+import '../core/utils/helpers.dart';
 
 class ServiceCategoryItem {
   final String id;
   final String title;
-  final IconData icon;
-  final Color iconColor;
-  final Color bgColor;
+  final List<Color> ambientColors;
 
   const ServiceCategoryItem({
     required this.id,
     required this.title,
-    required this.icon,
-    required this.iconColor,
-    required this.bgColor,
+    required this.ambientColors,
   });
 }
 
@@ -27,86 +24,62 @@ class ServiceCategoryController extends GetxController {
     ServiceCategoryItem(
       id: 'electrician',
       title: 'Electrician',
-      icon: Icons.lightbulb_rounded,
-      iconColor: Color(0xFFF59E0B),
-      bgColor: Color(0xFFFEF3C7),
+      ambientColors: [Color(0xFFFFFBEB), Color(0xFFFFFDF9), Colors.white],
     ),
     ServiceCategoryItem(
       id: 'plumber',
       title: 'Plumber',
-      icon: Icons.water_drop_rounded,
-      iconColor: Color(0xFF0284C7),
-      bgColor: Color(0xFFE0F2FE),
+      ambientColors: [Color(0xFFF0F9FF), Color(0xFFF8FAFC), Colors.white],
     ),
     ServiceCategoryItem(
       id: 'carpenter',
       title: 'Carpenter',
-      icon: Icons.hardware_rounded,
-      iconColor: Color(0xFFB45309),
-      bgColor: Color(0xFFFEF3C7),
+      ambientColors: [Color(0xFFFFFBEB), Color(0xFFFFFDF9), Colors.white],
     ),
     ServiceCategoryItem(
       id: 'mason',
       title: 'Mason /\nRaj Mistri',
-      icon: Icons.foundation_rounded,
-      iconColor: Color(0xFFEA580C),
-      bgColor: Color(0xFFFFEDD5),
+      ambientColors: [Color(0xFFFFF7ED), Color(0xFFFFFDF9), Colors.white],
     ),
     ServiceCategoryItem(
       id: 'painter',
       title: 'Painter',
-      icon: Icons.format_paint_rounded,
-      iconColor: Color(0xFF8B5CF6),
-      bgColor: Color(0xFFEDE9FE),
+      ambientColors: [Color(0xFFFAF5FF), Color(0xFFFDFBFD), Colors.white],
     ),
     ServiceCategoryItem(
       id: 'ac_repair',
       title: 'AC Repair',
-      icon: Icons.ac_unit_rounded,
-      iconColor: Color(0xFF0EA5E9),
-      bgColor: Color(0xFFE0F2FE),
+      ambientColors: [Color(0xFFF0FDF4), Color(0xFFF8FAFC), Colors.white],
     ),
     ServiceCategoryItem(
       id: 'washing_machine',
       title: 'Washing\nMachine Repair',
-      icon: Icons.local_laundry_service_rounded,
-      iconColor: Color(0xFF06B6D4),
-      bgColor: Color(0xFFCFFAFE),
+      ambientColors: [Color(0xFFEFF6FF), Color(0xFFF8FAFC), Colors.white],
     ),
     ServiceCategoryItem(
       id: 'refrigerator',
       title: 'Refrigerator\nRepair',
-      icon: Icons.kitchen_rounded,
-      iconColor: Color(0xFF64748B),
-      bgColor: Color(0xFFF1F5F9),
+      ambientColors: [Color(0xFFF8FAFC), Color(0xFFF1F5F9), Colors.white],
     ),
     ServiceCategoryItem(
       id: 'tv_repair',
       title: 'TV Repair',
-      icon: Icons.tv_rounded,
-      iconColor: Color(0xFF3B82F6),
-      bgColor: Color(0xFFDBEAFE),
+      ambientColors: [Color(0xFFEEF2FF), Color(0xFFF8FAFC), Colors.white],
     ),
     ServiceCategoryItem(
       id: 'ro_repair',
       title: 'RO Repair',
-      icon: Icons.opacity_rounded,
-      iconColor: Color(0xFF0284C7),
-      bgColor: Color(0xFFE0F2FE),
+      ambientColors: [Color(0xFFECFEFF), Color(0xFFF0F9FF), Colors.white],
     ),
     ServiceCategoryItem(
       id: 'appliance_repair',
       title: 'Appliance\nRepair',
-      icon: Icons.handyman_rounded,
-      iconColor: Color(0xFF475569),
-      bgColor: Color(0xFFF1F5F9),
+      ambientColors: [Color(0xFFF8FAFC), Color(0xFFF1F5F9), Colors.white],
     ),
     ServiceCategoryItem(
       id: 'other',
       title: 'Other',
-      icon: Icons.grid_view_rounded,
-      iconColor: Color(0xFF64748B),
-      bgColor: Color(0xFFF8FAFC),
+      ambientColors: [Color(0xFFF8FAFC), Color(0xFFF8FAFC), Colors.white],
     ),
   ];
 
@@ -126,14 +99,9 @@ class ServiceCategoryController extends GetxController {
 
   void onContinue() {
     if (selectedCategoryIds.isEmpty) {
-      Get.snackbar(
-        'Selection Required',
-        'Please select at least one service category',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: const Color(0xFF0F172A),
-        colorText: Colors.white,
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
+      Helpers.showSnackbar(
+        message: 'Please select at least one service category',
+        isError: true,
       );
       return;
     }

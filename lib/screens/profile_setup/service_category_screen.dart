@@ -4,7 +4,9 @@ import 'package:get/get.dart';
 import '../../controllers/service_category_controller.dart';
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_text_styles.dart';
+import '../../core/constants/app_sizes.dart';
 import '../../widgets/custom_button.dart';
+import '../../widgets/category_3d_icons.dart';
 
 class ServiceCategoryScreen extends StatelessWidget {
   const ServiceCategoryScreen({super.key});
@@ -18,12 +20,12 @@ class ServiceCategoryScreen extends StatelessWidget {
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.dark,
         statusBarBrightness: Brightness.light,
-        systemNavigationBarColor: Color(0xFFFFFDFB),
+        systemNavigationBarColor: AppColors.bgWarm,
         systemNavigationBarDividerColor: Colors.transparent,
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
       child: Scaffold(
-        backgroundColor: const Color(0xFFFFFDFB),
+        backgroundColor: AppColors.bgGradientTop,
         body: SafeArea(
           child: Column(
             children: [
@@ -31,23 +33,26 @@ class ServiceCategoryScreen extends StatelessWidget {
               // TOP APP BAR (Back Button + Step Progress Bar + "3/6")
               // ========================================================
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSizes.p16,
+                  vertical: AppSizes.p8,
+                ),
                 child: Row(
                   children: [
                     // Back Button
                     InkWell(
                       onTap: () => Get.back(),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(AppSizes.r20),
                       child: const Padding(
-                        padding: EdgeInsets.all(6.0),
+                        padding: EdgeInsets.all(AppSizes.p6),
                         child: Icon(
                           Icons.arrow_back_rounded,
-                          size: 24.0,
-                          color: Color(0xFF0F172A),
+                          size: AppSizes.iconLg,
+                          color: AppColors.iconDark,
                         ),
                       ),
                     ),
-                    const SizedBox(width: 16.0),
+                    const SizedBox(width: AppSizes.p16),
 
                     // Progress Bar (3/6)
                     Expanded(
@@ -56,8 +61,8 @@ class ServiceCategoryScreen extends StatelessWidget {
                           height: 7.0,
                           constraints: const BoxConstraints(maxWidth: 160.0),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFFFE8D6),
-                            borderRadius: BorderRadius.circular(10.0),
+                            color: AppColors.peachGlow2,
+                            borderRadius: BorderRadius.circular(AppSizes.r10),
                           ),
                           child: Align(
                             alignment: Alignment.centerLeft,
@@ -66,7 +71,7 @@ class ServiceCategoryScreen extends StatelessWidget {
                               child: Container(
                                 decoration: BoxDecoration(
                                   color: AppColors.primaryOrange,
-                                  borderRadius: BorderRadius.circular(10.0),
+                                  borderRadius: BorderRadius.circular(AppSizes.r10),
                                 ),
                               ),
                             ),
@@ -75,17 +80,12 @@ class ServiceCategoryScreen extends StatelessWidget {
                       ),
                     ),
 
-                    const SizedBox(width: 16.0),
+                    const SizedBox(width: AppSizes.p16),
 
                     // Step Indicator Text (3/6)
                     const Text(
                       '3/6',
-                      style: TextStyle(
-                        fontFamily: AppTextStyles.fontFamily,
-                        fontSize: 14.5,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.primaryOrange,
-                      ),
+                      style: AppTextStyles.stepIndicatorOrange,
                     ),
                   ],
                 ),
@@ -96,50 +96,36 @@ class ServiceCategoryScreen extends StatelessWidget {
               // ========================================================
               Expanded(
                 child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  physics: const ClampingScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: AppSizes.p20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 12.0),
+                      const SizedBox(height: AppSizes.p12),
 
                       // Title
                       const Text(
                         'Select Service\nCategory',
-                        style: TextStyle(
-                          fontFamily: AppTextStyles.fontFamily,
-                          fontSize: 26.0,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF0F172A),
-                          letterSpacing: -0.5,
-                          height: 1.2,
-                        ),
+                        style: AppTextStyles.basicInfoTitle,
                       ),
-                      const SizedBox(height: 6.0),
+                      const SizedBox(height: AppSizes.p6),
 
                       // Subtitle
                       const Text(
                         'Choose the services you provide.',
-                        style: TextStyle(
-                          fontFamily: AppTextStyles.fontFamily,
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.w400,
-                          color: Color(0xFF64748B),
-                          height: 1.35,
-                          letterSpacing: -0.1,
-                        ),
+                        style: AppTextStyles.basicInfoSubtitle,
                       ),
-                      const SizedBox(height: 20.0),
+                      const SizedBox(height: AppSizes.p20),
 
-                      // 3-Column Service Category Grid
+                      // 3-Column Ultra Premium 3D Service Category Grid
                       GridView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 3,
-                          mainAxisSpacing: 12.0,
-                          crossAxisSpacing: 12.0,
-                          childAspectRatio: 0.88,
+                          mainAxisSpacing: AppSizes.p14,
+                          crossAxisSpacing: AppSizes.p14,
+                          childAspectRatio: 0.79,
                         ),
                         itemCount: controller.categories.length,
                         itemBuilder: (context, index) {
@@ -155,7 +141,7 @@ class ServiceCategoryScreen extends StatelessWidget {
                         },
                       ),
 
-                      const SizedBox(height: 20.0),
+                      const SizedBox(height: AppSizes.p20),
                     ],
                   ),
                 ),
@@ -165,12 +151,16 @@ class ServiceCategoryScreen extends StatelessWidget {
               // REUSABLE BOTTOM CONTINUE BUTTON
               // ========================================================
               Padding(
-                padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 16.0),
+                padding: const EdgeInsets.fromLTRB(
+                  AppSizes.p20,
+                  AppSizes.p10,
+                  AppSizes.p20,
+                  AppSizes.p16,
+                ),
                 child: Obx(
                   () => CustomButton(
                     text: 'Continue',
-                    height: 50.0,
-                    borderRadius: 25.0,
+                    height: AppSizes.buttonHeightSm,
                     icon: Icons.arrow_forward_rounded,
                     isLoading: controller.isLoading.value,
                     onPressed: controller.onContinue,
@@ -186,7 +176,7 @@ class ServiceCategoryScreen extends StatelessWidget {
 }
 
 // ========================================================
-// INDIVIDUAL SERVICE CATEGORY CARD WIDGET
+// ULTRA PREMIUM 3D SERVICE CATEGORY CARD
 // ========================================================
 class _CategoryCard extends StatelessWidget {
   final ServiceCategoryItem item;
@@ -205,86 +195,105 @@ class _CategoryCard extends StatelessWidget {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeInOut,
-        padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 10.0),
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOutCubic,
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFFFF9F5) : Colors.white,
-          borderRadius: BorderRadius.circular(16.0),
+          borderRadius: BorderRadius.circular(AppSizes.r20),
+          gradient: isSelected
+              ? const LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    AppColors.categorySelectedBgTop,
+                    AppColors.categorySelectedBgBottom,
+                  ],
+                )
+              : LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: item.ambientColors,
+                ),
           border: Border.all(
-            color: isSelected ? AppColors.primaryOrange : const Color(0xFFE8EEF5),
-            width: isSelected ? 1.8 : 1.2,
+            color: isSelected
+                ? AppColors.primaryOrange
+                : AppColors.borderLight,
+            width: isSelected ? 2.0 : 1.2,
           ),
           boxShadow: [
             BoxShadow(
               color: isSelected
-                  ? AppColors.primaryOrange.withValues(alpha: 0.12)
-                  : Colors.black.withValues(alpha: 0.02),
-              blurRadius: isSelected ? 10.0 : 4.0,
-              offset: isSelected ? const Offset(0, 3.0) : const Offset(0, 1.0),
+                  ? AppColors.primaryOrange.withValues(alpha: 0.22)
+                  : Colors.black.withValues(alpha: 0.035),
+              blurRadius: isSelected ? 14.0 : 6.0,
+              spreadRadius: 0.0,
+              offset: isSelected ? const Offset(0, 4.0) : const Offset(0, 2.0),
             ),
           ],
         ),
         child: Stack(
           clipBehavior: Clip.none,
           children: [
-            // Selected Checkmark Badge (Top Right)
+            // Selected Orange Checkmark Badge (Top Right)
             if (isSelected)
               Positioned(
-                top: -2.0,
-                right: -2.0,
+                top: -3.0,
+                right: -3.0,
                 child: Container(
-                  width: 20.0,
-                  height: 20.0,
-                  decoration: const BoxDecoration(
+                  width: 22.0,
+                  height: 22.0,
+                  decoration: BoxDecoration(
                     color: AppColors.primaryOrange,
                     shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primaryOrange.withValues(alpha: 0.45),
+                        blurRadius: 6.0,
+                        offset: const Offset(0, 2.0),
+                      ),
+                    ],
                   ),
                   child: const Center(
                     child: Icon(
                       Icons.check_rounded,
-                      size: 13.0,
-                      color: Colors.white,
+                      size: 14.0,
+                      color: AppColors.textWhite,
                     ),
                   ),
                 ),
               ),
 
-            // Card Content (Icon + Title)
-            Center(
+            // Card Inner Content (3D Icon + Title)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSizes.p6, vertical: AppSizes.p10),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Icon Container
-                  Container(
-                    width: 44.0,
-                    height: 44.0,
-                    decoration: BoxDecoration(
-                      color: item.bgColor,
-                      borderRadius: BorderRadius.circular(14.0),
-                    ),
+                  // 3D Custom Rendered Graphic Icon
+                  Expanded(
+                    flex: 3,
                     child: Center(
-                      child: Icon(
-                        item.icon,
-                        color: item.iconColor,
-                        size: 24.0,
+                      child: Category3DIcon(
+                        categoryId: item.id,
+                        size: 50.0,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 8.0),
+                  const SizedBox(height: AppSizes.p6),
 
-                  // Category Label
-                  Text(
-                    item.title,
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontFamily: AppTextStyles.fontFamily,
-                      fontSize: 12.0,
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                      color: isSelected ? AppColors.primaryOrange : const Color(0xFF0F172A),
-                      height: 1.15,
+                  // Category Title Label
+                  Expanded(
+                    flex: 2,
+                    child: Center(
+                      child: Text(
+                        item.title,
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: isSelected
+                            ? AppTextStyles.categoryGridItemSelected
+                            : AppTextStyles.categoryGridItem,
+                      ),
                     ),
                   ),
                 ],

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_text_styles.dart';
+import '../constants/app_sizes.dart';
 
 class Helpers {
   Helpers._();
@@ -14,20 +16,28 @@ class Helpers {
       Get.closeCurrentSnackbar();
     }
 
+    final Color bgColor = isError ? AppColors.errorDark : AppColors.successDark;
+
     Get.rawSnackbar(
       snackPosition: SnackPosition.TOP,
-      backgroundColor: isError ? const Color(0xFFE11D48) : const Color(0xFF16A34A),
-      margin: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-      borderRadius: 14.0,
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      backgroundColor: bgColor,
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppSizes.p20,
+        vertical: AppSizes.p16,
+      ),
+      borderRadius: AppSizes.r14,
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSizes.p16,
+        vertical: AppSizes.p12,
+      ),
       messageText: Row(
         children: [
           Icon(
             isError ? Icons.error_outline_rounded : Icons.check_circle_outline_rounded,
             color: Colors.white,
-            size: 22.0,
+            size: AppSizes.iconLg,
           ),
-          const SizedBox(width: 10.0),
+          const SizedBox(width: AppSizes.p10),
           Expanded(
             child: Text(
               message,
@@ -43,8 +53,7 @@ class Helpers {
       ),
       boxShadows: [
         BoxShadow(
-          color: (isError ? const Color(0xFFE11D48) : const Color(0xFF16A34A))
-              .withValues(alpha: 0.35),
+          color: bgColor.withValues(alpha: 0.35),
           blurRadius: 16.0,
           offset: const Offset(0, 6.0),
         ),
@@ -64,4 +73,3 @@ class Helpers {
     return '₹${amount.toStringAsFixed(2)}';
   }
 }
-

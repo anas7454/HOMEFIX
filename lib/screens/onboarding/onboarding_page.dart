@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_text_styles.dart';
+import '../../core/constants/app_sizes.dart';
 import '../../data/models/onboarding_model.dart';
 
 class OnboardingPage extends StatelessWidget {
@@ -21,19 +22,19 @@ class OnboardingPage extends StatelessWidget {
         // ========================================================
         Padding(
           padding: const EdgeInsets.only(
-            left: 24.0,
-            right: 24.0,
+            left: AppSizes.p24,
+            right: AppSizes.p24,
             top: 26.0,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Headline Title (e.g., "All Home Services\nin One App")
+              // Headline Title
               Text(
                 item.title,
                 style: AppTextStyles.onboardingTitle,
               ),
-              const SizedBox(height: 8.0),
+              const SizedBox(height: AppSizes.p8),
               // Subtitle Description
               Text(
                 item.description,
@@ -43,14 +44,14 @@ class OnboardingPage extends StatelessWidget {
           ),
         ),
 
-        const SizedBox(height: 12.0),
+        const SizedBox(height: AppSizes.p12),
 
         // ========================================================
         // MAIN 3D ILLUSTRATION / GRAPHIC SECTION
         // ========================================================
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: AppSizes.p16),
             child: Center(
               child: Image.asset(
                 item.image,
@@ -60,10 +61,10 @@ class OnboardingPage extends StatelessWidget {
                 errorBuilder: (context, error, stackTrace) {
                   return Center(
                     child: Container(
-                      padding: const EdgeInsets.all(24),
+                      padding: const EdgeInsets.all(AppSizes.p24),
                       decoration: BoxDecoration(
                         color: AppColors.primary.withAlpha(20),
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(AppSizes.r20),
                         border: Border.all(
                           color: AppColors.primary.withAlpha(60),
                           width: 1.5,
@@ -77,7 +78,7 @@ class OnboardingPage extends StatelessWidget {
                             size: 48,
                             color: AppColors.primaryOrange,
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: AppSizes.p12),
                           Text(
                             'Place image at:\n${item.image}',
                             textAlign: TextAlign.center,

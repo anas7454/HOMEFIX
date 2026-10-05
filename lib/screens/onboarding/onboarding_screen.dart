@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../controllers/onboarding_controller.dart';
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_text_styles.dart';
+import '../../core/constants/app_sizes.dart';
 import '../../widgets/custom_button.dart';
 import 'onboarding_page.dart';
 
@@ -39,10 +40,10 @@ class OnboardingScreen extends StatelessWidget {
                 // ========================================================
                 Padding(
                   padding: const EdgeInsets.only(
-                    left: 24.0,
-                    right: 24.0,
-                    top: 12.0,
-                    bottom: 4.0,
+                    left: AppSizes.p24,
+                    right: AppSizes.p24,
+                    top: AppSizes.p12,
+                    bottom: AppSizes.p4,
                   ),
                   child: Obx(
                     () => Row(
@@ -52,12 +53,12 @@ class OnboardingScreen extends StatelessWidget {
                         // Step Pill Badge ("01 / 03")
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 12.0,
+                            horizontal: AppSizes.p12,
                             vertical: 5.0,
                           ),
                           decoration: BoxDecoration(
                             color: AppColors.primaryOrange,
-                            borderRadius: BorderRadius.circular(20.0),
+                            borderRadius: BorderRadius.circular(AppSizes.r20),
                           ),
                           child: Text(
                             controller.items[controller.currentPage.value].step,
@@ -71,8 +72,8 @@ class OnboardingScreen extends StatelessWidget {
                           behavior: HitTestBehavior.opaque,
                           child: const Padding(
                             padding: EdgeInsets.symmetric(
-                              horizontal: 6.0,
-                              vertical: 4.0,
+                              horizontal: AppSizes.p6,
+                              vertical: AppSizes.p4,
                             ),
                             child: Text(
                               "Skip",
@@ -105,7 +106,12 @@ class OnboardingScreen extends StatelessWidget {
                 // BOTTOM NAVIGATION BAR
                 // ========================================================
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(24.0, 8.0, 24.0, 22.0),
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSizes.p24,
+                    AppSizes.p8,
+                    AppSizes.p24,
+                    AppSizes.p22,
+                  ),
                   child: Obx(() {
                     final bool isLastPage = controller.isLastPage;
 
@@ -153,14 +159,14 @@ class OnboardingScreen extends StatelessWidget {
             return AnimatedContainer(
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeOutCubic,
-              margin: const EdgeInsets.only(right: 6.0),
+              margin: const EdgeInsets.only(right: AppSizes.p6),
               width: isActive ? 24.0 : 7.0,
               height: 7.0,
               decoration: BoxDecoration(
                 color: isActive
                     ? AppColors.primaryOrange
                     : AppColors.dotInactive,
-                borderRadius: BorderRadius.circular(4.0),
+                borderRadius: BorderRadius.circular(AppSizes.p4),
               ),
             );
           },
@@ -193,7 +199,7 @@ class OnboardingScreen extends StatelessWidget {
         alignment: Alignment.center,
         child: const Icon(
           Icons.arrow_forward_rounded,
-          color: Colors.white,
+          color: AppColors.textWhite,
           size: 26.0,
         ),
       ),
@@ -206,7 +212,7 @@ class OnboardingScreen extends StatelessWidget {
   Widget _buildGetStartedButton(OnboardingController controller) {
     return CustomButton(
       text: "Get Started",
-      height: 40.0,
+      height: AppSizes.buttonHeightSm,
       icon: Icons.arrow_forward_rounded,
       onPressed: controller.getStarted,
     );

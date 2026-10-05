@@ -5,6 +5,7 @@ import '../../controllers/role_selection_controller.dart';
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_text_styles.dart';
 import '../../core/constants/app_assets.dart';
+import '../../core/constants/app_sizes.dart';
 import '../../widgets/custom_button.dart';
 
 class RoleSelectionScreen extends StatelessWidget {
@@ -19,12 +20,12 @@ class RoleSelectionScreen extends StatelessWidget {
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.dark,
         statusBarBrightness: Brightness.light,
-        systemNavigationBarColor: Color(0xFFFFFBF7),
+        systemNavigationBarColor: AppColors.bgWarm,
         systemNavigationBarDividerColor: Colors.transparent,
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
       child: Scaffold(
-        backgroundColor: const Color(0xFFFFFDFB),
+        backgroundColor: AppColors.bgGradientTop,
         body: Stack(
           children: [
             // ========================================================
@@ -33,14 +34,7 @@ class RoleSelectionScreen extends StatelessWidget {
             Positioned.fill(
               child: Container(
                 decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Color(0xFFFFFDFB),
-                      Color(0xFFFFF8F2),
-                    ],
-                  ),
+                  gradient: AppColors.ambientWarmGradient,
                 ),
               ),
             ),
@@ -54,7 +48,7 @@ class RoleSelectionScreen extends StatelessWidget {
                 height: 190.0,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: const Color(0xFFFFE8D6).withValues(alpha: 0.65),
+                  color: AppColors.peachGlow2.withValues(alpha: 0.65),
                 ),
               ),
             ),
@@ -68,7 +62,7 @@ class RoleSelectionScreen extends StatelessWidget {
                 height: 200.0,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: const Color(0xFFFFEADC).withValues(alpha: 0.55),
+                  color: AppColors.peachGlow3.withValues(alpha: 0.55),
                 ),
               ),
             ),
@@ -82,16 +76,20 @@ class RoleSelectionScreen extends StatelessWidget {
                 children: [
                   // TOP APP BAR (Back Button)
                   Padding(
-                    padding: const EdgeInsets.only(left: 14.0, top: 6.0, bottom: 4.0),
+                    padding: const EdgeInsets.only(
+                      left: AppSizes.p14,
+                      top: AppSizes.p6,
+                      bottom: AppSizes.p4,
+                    ),
                     child: IconButton(
                       onPressed: () => Get.back(),
                       icon: const Icon(
                         Icons.arrow_back_rounded,
-                        size: 24.0,
-                        color: Color(0xFF0F172A),
+                        size: AppSizes.iconLg,
+                        color: AppColors.iconDark,
                       ),
                       splashRadius: 22.0,
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(AppSizes.p8),
                       constraints: const BoxConstraints(),
                     ),
                   ),
@@ -100,39 +98,26 @@ class RoleSelectionScreen extends StatelessWidget {
                   Expanded(
                     child: SingleChildScrollView(
                       physics: const ClampingScrollPhysics(),
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      padding: const EdgeInsets.symmetric(horizontal: AppSizes.p20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const SizedBox(height: 6.0),
+                          const SizedBox(height: AppSizes.p6),
 
                           // ========================================================
                           // TITLE & SUBTITLE
                           // ========================================================
                           const Text(
                             "How do you want\nto use HomeFix?",
-                            style: TextStyle(
-                              fontFamily: AppTextStyles.fontFamily,
-                              fontSize: 27.0,
-                              fontWeight: FontWeight.w800,
-                              color: Color(0xFF0F172A),
-                              height: 1.18,
-                              letterSpacing: -0.5,
-                            ),
+                            style: AppTextStyles.roleSelectionTitle,
                           ),
-                          const SizedBox(height: 6.0),
+                          const SizedBox(height: AppSizes.p6),
 
                           const Text(
                             "Choose your role to get started",
-                            style: TextStyle(
-                              fontFamily: AppTextStyles.fontFamily,
-                              fontSize: 14.5,
-                              fontWeight: FontWeight.w400,
-                              color: Color(0xFF64748B),
-                              letterSpacing: -0.1,
-                            ),
+                            style: AppTextStyles.roleSelectionSubtitle,
                           ),
-                          const SizedBox(height: 18.0),
+                          const SizedBox(height: AppSizes.p18),
 
                           // ========================================================
                           // ROLE CARD 1: "I need a service"
@@ -150,7 +135,7 @@ class RoleSelectionScreen extends StatelessWidget {
                             ),
                           ),
 
-                          const SizedBox(height: 14.0),
+                          const SizedBox(height: AppSizes.p14),
 
                           // ========================================================
                           // ROLE CARD 2: "I provide services"
@@ -168,7 +153,7 @@ class RoleSelectionScreen extends StatelessWidget {
                             ),
                           ),
 
-                          const SizedBox(height: 12.0),
+                          const SizedBox(height: AppSizes.p12),
                         ],
                       ),
                     ),
@@ -178,11 +163,16 @@ class RoleSelectionScreen extends StatelessWidget {
                   // BOTTOM REUSABLE CONTINUE BUTTON (CustomButton)
                   // ========================================================
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 16.0),
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSizes.p20,
+                      AppSizes.p10,
+                      AppSizes.p20,
+                      AppSizes.p16,
+                    ),
                     child: Obx(
                       () => CustomButton(
                         text: "Continue",
-                        height: 40.0,
+                        height: AppSizes.buttonHeightSm,
                         icon: Icons.arrow_forward_rounded,
                         isLoading: controller.isLoading.value,
                         onPressed: controller.onContinue,
@@ -227,12 +217,12 @@ class _RoleCard extends StatelessWidget {
         curve: Curves.easeInOut,
         width: double.infinity,
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(18.0),
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(AppSizes.r18),
           border: Border.all(
             color: isSelected
                 ? AppColors.primaryOrange
-                : const Color(0xFFE2E8F0),
+                : AppColors.border,
             width: isSelected ? 1.8 : 1.2,
           ),
           boxShadow: [
@@ -267,8 +257,8 @@ class _RoleCard extends StatelessWidget {
 
                 // Interactive Selection Radio Indicator (Top Right)
                 Positioned(
-                  top: 10.0,
-                  right: 10.0,
+                  top: AppSizes.p10,
+                  right: AppSizes.p10,
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     width: 25.0,
@@ -277,11 +267,11 @@ class _RoleCard extends StatelessWidget {
                       shape: BoxShape.circle,
                       color: isSelected
                           ? AppColors.primaryOrange
-                          : Colors.white.withValues(alpha: 0.85),
+                          : AppColors.surface.withValues(alpha: 0.85),
                       border: Border.all(
                         color: isSelected
                             ? AppColors.primaryOrange
-                            : const Color(0xFFCBD5E1),
+                            : AppColors.border,
                         width: isSelected ? 0.0 : 1.8,
                       ),
                       boxShadow: [
@@ -310,33 +300,26 @@ class _RoleCard extends StatelessWidget {
 
             // BOTTOM TEXT SECTION
             Padding(
-              padding: const EdgeInsets.fromLTRB(16.0, 10.0, 16.0, 12.0),
+              padding: const EdgeInsets.fromLTRB(
+                AppSizes.p16,
+                AppSizes.p10,
+                AppSizes.p16,
+                AppSizes.p12,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Role Title
                   Text(
                     title,
-                    style: const TextStyle(
-                      fontFamily: AppTextStyles.fontFamily,
-                      fontSize: 16.5,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF0F172A),
-                      letterSpacing: -0.3,
-                    ),
+                    style: AppTextStyles.roleCardTitle,
                   ),
                   const SizedBox(height: 3.0),
 
                   // Role Description
                   Text(
                     description,
-                    style: const TextStyle(
-                      fontFamily: AppTextStyles.fontFamily,
-                      fontSize: 13.0,
-                      fontWeight: FontWeight.w400,
-                      color: Color(0xFF64748B),
-                      height: 1.34,
-                    ),
+                    style: AppTextStyles.roleCardDescription,
                   ),
                 ],
               ),

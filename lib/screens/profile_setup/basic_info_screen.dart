@@ -1,10 +1,13 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../controllers/basic_info_controller.dart';
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_text_styles.dart';
 import '../../core/constants/app_assets.dart';
+import '../../core/constants/app_sizes.dart';
 import '../../widgets/custom_button.dart';
 
 class BasicInfoScreen extends StatelessWidget {
@@ -19,297 +22,491 @@ class BasicInfoScreen extends StatelessWidget {
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.dark,
         statusBarBrightness: Brightness.light,
-        systemNavigationBarColor: Color(0xFFFFFDFB),
+        systemNavigationBarColor: AppColors.bgWarm,
         systemNavigationBarDividerColor: Colors.transparent,
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
-      child: Scaffold(
-        backgroundColor: const Color(0xFFFFFDFB),
-        body: SafeArea(
-          child: Column(
-            children: [
-              // ========================================================
-              // TOP APP BAR (Back Button + Step Progress Bar + "2/6")
-              // ========================================================
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: Row(
-                  children: [
-                    // Back Button
-                    InkWell(
-                      onTap: () => Get.back(),
-                      borderRadius: BorderRadius.circular(20),
-                      child: const Padding(
-                        padding: EdgeInsets.all(6.0),
-                        child: Icon(
-                          Icons.arrow_back_rounded,
-                          size: 24.0,
-                          color: Color(0xFF0F172A),
+      child: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        behavior: HitTestBehavior.translucent,
+        child: Scaffold(
+          backgroundColor: AppColors.bgGradientTop,
+          body: SafeArea(
+            child: Column(
+              children: [
+                // ========================================================
+                // TOP APP BAR (Back Button + Step Progress Bar + "2/6")
+                // ========================================================
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSizes.p16,
+                    vertical: AppSizes.p8,
+                  ),
+                  child: Row(
+                    children: [
+                      // Back Button
+                      InkWell(
+                        onTap: () => Get.back(),
+                        borderRadius: BorderRadius.circular(AppSizes.r20),
+                        child: const Padding(
+                          padding: EdgeInsets.all(AppSizes.p6),
+                          child: Icon(
+                            Icons.arrow_back_rounded,
+                            size: AppSizes.iconLg,
+                            color: AppColors.iconDark,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 16.0),
+                      const SizedBox(width: AppSizes.p16),
 
-                    // Progress Bar
-                    Expanded(
-                      child: Center(
-                        child: Container(
-                          height: 7.0,
-                          constraints: const BoxConstraints(maxWidth: 160.0),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFE8D6),
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: FractionallySizedBox(
-                              widthFactor: 2 / 6, // Step 2 of 6
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: AppColors.primaryOrange,
-                                  borderRadius: BorderRadius.circular(10.0),
+                      // Progress Bar (Step 2 of 6)
+                      Expanded(
+                        child: Center(
+                          child: Container(
+                            height: 7.0,
+                            constraints: const BoxConstraints(maxWidth: 160.0),
+                            decoration: BoxDecoration(
+                              color: AppColors.peachGlow2,
+                              borderRadius: BorderRadius.circular(AppSizes.r10),
+                            ),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: FractionallySizedBox(
+                                widthFactor: 2 / 6,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primaryOrange,
+                                    borderRadius: BorderRadius.circular(AppSizes.r10),
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
                       ),
+
+                      const SizedBox(width: AppSizes.p16),
+
+                      // Step Indicator Text (2/6)
+                      const Text(
+                        '2/6',
+                        style: TextStyle(
+                          fontFamily: AppTextStyles.fontFamily,
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.primaryOrange,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // ========================================================
+                // SCROLLABLE FORM BODY
+                // ========================================================
+                Expanded(
+                  child: SingleChildScrollView(
+                    physics: const ClampingScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: AppSizes.p20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: AppSizes.p12),
+
+                        // Title
+                        const Text(
+                          'Basic Information',
+                          style: AppTextStyles.basicInfoTitle,
+                        ),
+                        const SizedBox(height: AppSizes.p6),
+
+                        // Subtitle
+                        const Text(
+                          'Add your personal details to create your profile.',
+                          style: AppTextStyles.basicInfoSubtitle,
+                        ),
+                        const SizedBox(height: AppSizes.p24),
+
+                        // ========================================================
+                        // PROFILE PHOTO AVATAR + CAMERA BADGE (With BottomSheet)
+                        // ========================================================
+                        Center(
+                          child: GestureDetector(
+                            onTap: () => _showPhotoPicker(context, controller),
+                            child: Column(
+                              children: [
+                                Stack(
+                                  clipBehavior: Clip.none,
+                                  children: [
+                                    // Avatar Circle
+                                    Container(
+                                      width: 110.0,
+                                      height: 110.0,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: AppColors.border,
+                                          width: 2.0,
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withValues(alpha: 0.06),
+                                            blurRadius: 12.0,
+                                            offset: const Offset(0, 4.0),
+                                          ),
+                                        ],
+                                      ),
+                                      child: ClipOval(
+                                        child: Obx(() {
+                                          final String customPath = controller.profileImagePath.value;
+                                          if (customPath.isNotEmpty && File(customPath).existsSync()) {
+                                            return Image.file(
+                                              File(customPath),
+                                              fit: BoxFit.cover,
+                                            );
+                                          }
+                                          return Image.asset(
+                                            AppAssets.home8,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (context, error, stackTrace) {
+                                              return Container(
+                                                color: AppColors.surfaceLight,
+                                                child: const Icon(
+                                                  Icons.person_rounded,
+                                                  size: 56.0,
+                                                  color: AppColors.textPlaceholder,
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        }),
+                                      ),
+                                    ),
+
+                                    // Camera Action Badge (Bottom Right)
+                                    Positioned(
+                                      bottom: 0,
+                                      right: 0,
+                                      child: Container(
+                                        width: 34.0,
+                                        height: 34.0,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primaryOrange,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: Colors.white,
+                                            width: 2.5,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: AppColors.primaryOrange.withValues(alpha: 0.4),
+                                              blurRadius: 6.0,
+                                              offset: const Offset(0, 2.0),
+                                            ),
+                                          ],
+                                        ),
+                                        child: const Center(
+                                          child: Icon(
+                                            Icons.camera_alt_rounded,
+                                            size: 17.0,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: AppSizes.p10),
+
+                                // "Add Profile Photo" Label
+                                const Text(
+                                  'Add Profile Photo',
+                                  style: AppTextStyles.addPhotoLabel,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: AppSizes.p24),
+
+                        // ========================================================
+                        // FORM FIELDS (With strict InputFormatters & Validations)
+                        // ========================================================
+
+                        // 1. Full Name (Words capitalized, Letters & Spaces only, Next Action)
+                        _ProfileInputField(
+                          icon: Icons.person_outline_rounded,
+                          label: 'Full Name *',
+                          controller: controller.fullNameController,
+                          hintText: 'Enter your full name',
+                          textCapitalization: TextCapitalization.words,
+                          textInputAction: TextInputAction.next,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+                          ],
+                        ),
+                        const SizedBox(height: AppSizes.p12),
+
+                        // 2. Mobile Number (Strict 10 digits as in Login screen, Next Action)
+                        _ProfileInputField(
+                          icon: Icons.phone_outlined,
+                          label: 'Mobile Number *',
+                          controller: controller.phoneController,
+                          keyboardType: TextInputType.phone,
+                          textInputAction: TextInputAction.next,
+                          hintText: 'Enter 10-digit number',
+                          maxLength: 10,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(10),
+                          ],
+                        ),
+                        const SizedBox(height: AppSizes.p12),
+
+                        // 3. Email (Optional, Email keyboard, Done Action)
+                        _ProfileInputField(
+                          icon: Icons.mail_outline_rounded,
+                          label: 'Email (Optional)',
+                          controller: controller.emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          textInputAction: TextInputAction.done,
+                          hintText: 'Enter email address',
+                        ),
+                        const SizedBox(height: AppSizes.p12),
+
+                        // 4. Date of Birth (Mandatory, DatePicker on tap)
+                        _ProfileInputField(
+                          icon: Icons.calendar_today_outlined,
+                          label: 'Date of Birth *',
+                          controller: controller.dobController,
+                          readOnly: true,
+                          hintText: 'Select Date of Birth',
+                          onTap: () => controller.pickDate(context),
+                        ),
+                        const SizedBox(height: AppSizes.p12),
+
+                        // 5. Gender (Mandatory, BottomSheet on tap)
+                        Obx(
+                          () => _ProfileInputField(
+                            icon: Icons.shield_outlined,
+                            label: 'Gender *',
+                            valueText: controller.selectedGender.value.isNotEmpty
+                                ? controller.selectedGender.value
+                                : null,
+                            hintText: 'Select Gender',
+                            readOnly: true,
+                            showDropdownArrow: true,
+                            onTap: () => _showGenderPicker(context, controller),
+                          ),
+                        ),
+
+                        const SizedBox(height: AppSizes.p24),
+                      ],
                     ),
+                  ),
+                ),
 
-                    const SizedBox(width: 16.0),
+                // ========================================================
+                // BOTTOM CONTINUE BUTTON (Reusable CustomButton)
+                // ========================================================
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSizes.p20,
+                    AppSizes.p10,
+                    AppSizes.p20,
+                    AppSizes.p16,
+                  ),
+                  child: Obx(
+                    () => CustomButton(
+                      text: 'Continue',
+                      height: AppSizes.buttonHeightSm,
+                      icon: Icons.arrow_forward_rounded,
+                      isLoading: controller.isLoading.value,
+                      onPressed: controller.onContinue,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
-                    // Step Indicator Text (2/6)
-                    const Text(
-                      '2/6',
-                      style: TextStyle(
-                        fontFamily: AppTextStyles.fontFamily,
-                        fontSize: 14.5,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.primaryOrange,
+  // ========================================================
+  // PHOTO PICKER BOTTOM SHEET (Choose an Option - Camera & Gallery)
+  // ========================================================
+  void _showPhotoPicker(BuildContext context, BasicInfoController controller) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppSizes.r24)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSizes.p24,
+              AppSizes.p12,
+              AppSizes.p24,
+              AppSizes.p24,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Top Drag Handle Indicator
+                Container(
+                  width: 44.0,
+                  height: 4.5,
+                  decoration: BoxDecoration(
+                    color: AppColors.border,
+                    borderRadius: BorderRadius.circular(AppSizes.r10),
+                  ),
+                ),
+                const SizedBox(height: AppSizes.p16),
+
+                // Centered "Choose an Option" Title
+                const Text(
+                  'Choose an Option',
+                  style: TextStyle(
+                    fontFamily: AppTextStyles.fontFamily,
+                    fontSize: 17.5,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textTitle,
+                    letterSpacing: -0.3,
+                  ),
+                ),
+                const SizedBox(height: AppSizes.p20),
+
+                // Two Horizontal Option Cards (Camera & Gallery)
+                Row(
+                  children: [
+                    // Camera Card
+                    Expanded(
+                      child: _buildPickerOptionCard(
+                        icon: Icons.camera_alt_rounded,
+                        label: 'Camera',
+                        onTap: () {
+                          Navigator.pop(context);
+                          controller.pickProfileImage(ImageSource.camera);
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: AppSizes.p16),
+
+                    // Gallery Card
+                    Expanded(
+                      child: _buildPickerOptionCard(
+                        icon: Icons.photo_library_rounded,
+                        label: 'Gallery',
+                        onTap: () {
+                          Navigator.pop(context);
+                          controller.pickProfileImage(ImageSource.gallery);
+                        },
                       ),
                     ),
                   ],
                 ),
+
+                // Remove Photo Option (if already uploaded)
+                Obx(() {
+                  if (controller.profileImagePath.value.isNotEmpty) {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: AppSizes.p16),
+                      child: TextButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          controller.removeProfileImage();
+                        },
+                        icon: const Icon(
+                          Icons.delete_outline_rounded,
+                          size: 19.0,
+                          color: AppColors.error,
+                        ),
+                        label: const Text(
+                          'Remove Current Photo',
+                          style: TextStyle(
+                            fontFamily: AppTextStyles.fontFamily,
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.error,
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                }),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // Helper Widget for Photo Picker Option Card
+  Widget _buildPickerOptionCard({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppSizes.r16),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: AppSizes.p20),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(AppSizes.r16),
+            border: Border.all(
+              color: AppColors.borderLight,
+              width: 1.2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.02),
+                blurRadius: 8.0,
+                offset: const Offset(0, 2.0),
               ),
-
-              // ========================================================
-              // SCROLLABLE FORM BODY
-              // ========================================================
-              Expanded(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 12.0),
-
-                      // Title
-                      const Text(
-                        'Basic Information',
-                        style: TextStyle(
-                          fontFamily: AppTextStyles.fontFamily,
-                          fontSize: 26.0,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF0F172A),
-                          letterSpacing: -0.5,
-                          height: 1.2,
-                        ),
-                      ),
-                      const SizedBox(height: 6.0),
-
-                      // Subtitle
-                      const Text(
-                        'Add your personal details to create your profile.',
-                        style: TextStyle(
-                          fontFamily: AppTextStyles.fontFamily,
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.w400,
-                          color: Color(0xFF64748B),
-                          height: 1.35,
-                          letterSpacing: -0.1,
-                        ),
-                      ),
-                      const SizedBox(height: 24.0),
-
-                      // ========================================================
-                      // PROFILE PHOTO AVATAR + CAMERA BADGE
-                      // ========================================================
-                      Center(
-                        child: Column(
-                          children: [
-                            Stack(
-                              clipBehavior: Clip.none,
-                              children: [
-                                // Avatar Circle
-                                Container(
-                                  width: 110.0,
-                                  height: 110.0,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: const Color(0xFFE2E8F0),
-                                      width: 2.0,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.06),
-                                        blurRadius: 12.0,
-                                        offset: const Offset(0, 4.0),
-                                      ),
-                                    ],
-                                  ),
-                                  child: ClipOval(
-                                    child: Image.asset(
-                                      AppAssets.home8,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) {
-                                        return Container(
-                                          color: const Color(0xFFF1F5F9),
-                                          child: const Icon(
-                                            Icons.person_rounded,
-                                            size: 56.0,
-                                            color: Color(0xFF94A3B8),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
-
-                                // Camera Action Badge (Bottom Right)
-                                Positioned(
-                                  bottom: 0,
-                                  right: 0,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      // Can trigger photo picker
-                                    },
-                                    child: Container(
-                                      width: 34.0,
-                                      height: 34.0,
-                                      decoration: BoxDecoration(
-                                        color: AppColors.primaryOrange,
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: Colors.white,
-                                          width: 2.5,
-                                        ),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: AppColors.primaryOrange.withValues(alpha: 0.4),
-                                            blurRadius: 6.0,
-                                            offset: const Offset(0, 2.0),
-                                          ),
-                                        ],
-                                      ),
-                                      child: const Center(
-                                        child: Icon(
-                                          Icons.camera_alt_rounded,
-                                          size: 17.0,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10.0),
-
-                            // "Add Profile Photo" Label
-                            const Text(
-                              'Add Profile Photo',
-                              style: TextStyle(
-                                fontFamily: AppTextStyles.fontFamily,
-                                fontSize: 14.5,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF0F172A),
-                                letterSpacing: -0.2,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 24.0),
-
-                      // ========================================================
-                      // FORM FIELDS
-                      // ========================================================
-
-                      // 1. Full Name
-                      _ProfileInputField(
-                        icon: Icons.person_outline_rounded,
-                        label: 'Full Name *',
-                        controller: controller.fullNameController,
-                        hintText: 'Enter your full name',
-                      ),
-                      const SizedBox(height: 12.0),
-
-                      // 2. Mobile Number
-                      _ProfileInputField(
-                        icon: Icons.phone_outlined,
-                        label: 'Mobile Number *',
-                        controller: controller.phoneController,
-                        keyboardType: TextInputType.phone,
-                        hintText: 'Enter mobile number',
-                      ),
-                      const SizedBox(height: 12.0),
-
-                      // 3. Email (Optional)
-                      _ProfileInputField(
-                        icon: Icons.mail_outline_rounded,
-                        label: 'Email (Optional)',
-                        controller: controller.emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        hintText: 'Enter email address',
-                      ),
-                      const SizedBox(height: 12.0),
-
-                      // 4. Date of Birth (Optional)
-                      _ProfileInputField(
-                        icon: Icons.calendar_today_outlined,
-                        label: 'Date of Birth (Optional)',
-                        controller: controller.dobController,
-                        readOnly: true,
-                        hintText: 'DD MMM YYYY',
-                        onTap: () => controller.pickDate(context),
-                      ),
-                      const SizedBox(height: 12.0),
-
-                      // 5. Gender
-                      Obx(
-                        () => _ProfileInputField(
-                          icon: Icons.shield_outlined,
-                          label: 'Gender',
-                          valueText: controller.selectedGender.value,
-                          readOnly: true,
-                          showDropdownArrow: true,
-                          onTap: () => _showGenderPicker(context, controller),
-                        ),
-                      ),
-
-                      const SizedBox(height: 24.0),
-                    ],
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Circular Icon Container
+              Container(
+                width: 52.0,
+                height: 52.0,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(0xFFEFF6FF), // Soft Tinted Blue Background as in image
+                ),
+                child: Center(
+                  child: Icon(
+                    icon,
+                    size: 26.0,
+                    color: Color(0xFF0284C7), // Blue Icon color as in screenshot
                   ),
                 ),
               ),
+              const SizedBox(height: AppSizes.p12),
 
-              // ========================================================
-              // BOTTOM CONTINUE BUTTON (Reusable CustomButton)
-              // ========================================================
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 16.0),
-                child: Obx(
-                  () => CustomButton(
-                    text: 'Continue',
-                    height: 50.0,
-                    borderRadius: 25.0,
-                    icon: Icons.arrow_forward_rounded,
-                    isLoading: controller.isLoading.value,
-                    onPressed: controller.onContinue,
-                  ),
+              // Option Label Text
+              Text(
+                label,
+                style: const TextStyle(
+                  fontFamily: AppTextStyles.fontFamily,
+                  fontSize: 14.5,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textTitle,
+                  letterSpacing: -0.2,
                 ),
               ),
             ],
@@ -319,18 +516,23 @@ class BasicInfoScreen extends StatelessWidget {
     );
   }
 
-  // Bottom Sheet Gender Picker
+  // ========================================================
+  // GENDER PICKER BOTTOM SHEET
+  // ========================================================
   void _showGenderPicker(BuildContext context, BasicInfoController controller) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppSizes.r24)),
       ),
       builder: (context) {
         return SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSizes.p20,
+              vertical: AppSizes.p20,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -340,34 +542,26 @@ class BasicInfoScreen extends StatelessWidget {
                     width: 40.0,
                     height: 4.0,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE2E8F0),
-                      borderRadius: BorderRadius.circular(2.0),
+                      color: AppColors.border,
+                      borderRadius: BorderRadius.circular(AppSizes.p2),
                     ),
                   ),
                 ),
-                const SizedBox(height: 16.0),
+                const SizedBox(height: AppSizes.p16),
                 const Text(
                   'Select Gender',
-                  style: TextStyle(
-                    fontFamily: AppTextStyles.fontFamily,
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF0F172A),
-                  ),
+                  style: AppTextStyles.bottomSheetTitle,
                 ),
-                const SizedBox(height: 12.0),
+                const SizedBox(height: AppSizes.p12),
                 ...controller.genderOptions.map((gender) {
                   final isSelected = controller.selectedGender.value == gender;
                   return ListTile(
                     contentPadding: EdgeInsets.zero,
                     title: Text(
                       gender,
-                      style: TextStyle(
-                        fontFamily: AppTextStyles.fontFamily,
-                        fontSize: 15.0,
-                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                        color: isSelected ? AppColors.primaryOrange : const Color(0xFF0F172A),
-                      ),
+                      style: isSelected
+                          ? AppTextStyles.bottomSheetItemSelected
+                          : AppTextStyles.bottomSheetItem,
                     ),
                     trailing: isSelected
                         ? const Icon(Icons.check_circle_rounded, color: AppColors.primaryOrange)
@@ -396,6 +590,10 @@ class _ProfileInputField extends StatelessWidget {
   final String? valueText;
   final TextEditingController? controller;
   final TextInputType keyboardType;
+  final TextCapitalization textCapitalization;
+  final TextInputAction? textInputAction;
+  final List<TextInputFormatter>? inputFormatters;
+  final int? maxLength;
   final bool readOnly;
   final bool showDropdownArrow;
   final VoidCallback? onTap;
@@ -407,6 +605,10 @@ class _ProfileInputField extends StatelessWidget {
     this.valueText,
     this.controller,
     this.keyboardType = TextInputType.text,
+    this.textCapitalization = TextCapitalization.none,
+    this.textInputAction,
+    this.inputFormatters,
+    this.maxLength,
     this.readOnly = false,
     this.showDropdownArrow = false,
     this.onTap,
@@ -420,12 +622,15 @@ class _ProfileInputField extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSizes.p14,
+          vertical: AppSizes.p10,
+        ),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16.0),
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(AppSizes.r16),
           border: Border.all(
-            color: const Color(0xFFE8EEF5),
+            color: AppColors.borderLight,
             width: 1.2,
           ),
           boxShadow: [
@@ -443,22 +648,22 @@ class _ProfileInputField extends StatelessWidget {
               width: 42.0,
               height: 42.0,
               decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.circular(12.0),
+                color: AppColors.surfaceLight,
+                borderRadius: BorderRadius.circular(AppSizes.r12),
                 border: Border.all(
-                  color: const Color(0xFFE2E8F0),
+                  color: AppColors.border,
                   width: 1.0,
                 ),
               ),
               child: Center(
                 child: Icon(
                   icon,
-                  size: 20.0,
-                  color: const Color(0xFF475569),
+                  size: AppSizes.iconMd,
+                  color: AppColors.iconSlate,
                 ),
               ),
             ),
-            const SizedBox(width: 14.0),
+            const SizedBox(width: AppSizes.p14),
 
             // Middle Text / Input Field
             Expanded(
@@ -469,48 +674,33 @@ class _ProfileInputField extends StatelessWidget {
                   // Label
                   Text(
                     label,
-                    style: const TextStyle(
-                      fontFamily: AppTextStyles.fontFamily,
-                      fontSize: 12.0,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF64748B),
-                    ),
+                    style: AppTextStyles.inputCardLabel,
                   ),
-                  const SizedBox(height: 2.0),
+                  const SizedBox(height: AppSizes.p2),
 
                   // Value or Input
                   if (valueText != null)
                     Text(
                       valueText!,
-                      style: const TextStyle(
-                        fontFamily: AppTextStyles.fontFamily,
-                        fontSize: 15.0,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF0F172A),
-                      ),
+                      style: AppTextStyles.inputCardValue,
                     )
                   else
                     TextFormField(
                       controller: controller,
                       readOnly: readOnly,
                       keyboardType: keyboardType,
+                      textCapitalization: textCapitalization,
+                      textInputAction: textInputAction,
+                      inputFormatters: inputFormatters,
+                      maxLength: maxLength,
                       onTap: onTap,
-                      style: const TextStyle(
-                        fontFamily: AppTextStyles.fontFamily,
-                        fontSize: 15.0,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF0F172A),
-                      ),
+                      style: AppTextStyles.inputCardValue,
                       decoration: InputDecoration(
                         isDense: true,
                         contentPadding: EdgeInsets.zero,
+                        counterText: "",
                         hintText: hintText,
-                        hintStyle: const TextStyle(
-                          fontFamily: AppTextStyles.fontFamily,
-                          fontSize: 15.0,
-                          fontWeight: FontWeight.w400,
-                          color: Color(0xFF94A3B8),
-                        ),
+                        hintStyle: AppTextStyles.inputCardHint,
                         border: InputBorder.none,
                         enabledBorder: InputBorder.none,
                         focusedBorder: InputBorder.none,
@@ -523,10 +713,10 @@ class _ProfileInputField extends StatelessWidget {
             // Optional Dropdown Arrow
             if (showDropdownArrow)
               const Padding(
-                padding: EdgeInsets.only(left: 8.0, right: 4.0),
+                padding: EdgeInsets.only(left: AppSizes.p8, right: AppSizes.p4),
                 child: Icon(
                   Icons.keyboard_arrow_down_rounded,
-                  color: Color(0xFF475569),
+                  color: AppColors.iconSlate,
                   size: 22.0,
                 ),
               ),
