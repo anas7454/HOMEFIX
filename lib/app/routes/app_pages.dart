@@ -11,6 +11,7 @@ import '../../screens/profile_setup/work_details_screen.dart';
 import '../../screens/dashboard/dashboard_screen.dart';
 import '../../screens/bookings/booking_screen.dart';
 import '../../screens/properties/property_screen.dart';
+import '../../screens/plans/choose_plan_screen.dart';
 
 class AppPages {
   AppPages._();
@@ -71,6 +72,11 @@ class AppPages {
     GetPage(
       name: AppRoutes.properties,
       page: () => const PropertyScreen(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: AppRoutes.choosePlan,
+      page: () => const ChoosePlanScreen(),
       transition: Transition.rightToLeft,
     ),
   ];

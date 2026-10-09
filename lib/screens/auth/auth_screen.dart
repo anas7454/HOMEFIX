@@ -69,8 +69,11 @@ class AuthScreen extends StatelessWidget {
               // ========================================================
               // BOTTOM SHEET LOGIN CARD
               // ========================================================
-              Align(
-                alignment: Alignment.bottomCenter,
+              Positioned(
+                top: MediaQuery.of(context).size.height * 0.33, // Moved card significantly up
+                bottom: 0,
+                left: 0,
+                right: 0,
                 child: Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
@@ -93,9 +96,9 @@ class AuthScreen extends StatelessWidget {
                       physics: const ClampingScrollPhysics(),
                       padding: const EdgeInsets.fromLTRB(
                         AppSizes.p24,
+                        AppSizes.p32,
                         AppSizes.p24,
                         AppSizes.p24,
-                        AppSizes.p16,
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -125,16 +128,10 @@ class AuthScreen extends StatelessWidget {
                           _buildContinueButton(authController),
                           const SizedBox(height: AppSizes.p16),
 
-                          // OR Divider
-                          _buildOrDivider(),
-                          const SizedBox(height: AppSizes.p16),
-
-                          // Continue with Google Button
-                          _buildGoogleButton(authController),
-                          const SizedBox(height: AppSizes.p16),
 
                           // Terms & Privacy Footer
                           _buildTermsAndPrivacy(),
+                          const SizedBox(height: AppSizes.p32), // Added extra padding at the bottom to shift content slightly upward
                         ],
                       ),
                     ),
@@ -240,81 +237,6 @@ class AuthScreen extends StatelessWidget {
   }
 
   // ====================================================
-  // OR DIVIDER
-  // ====================================================
-  Widget _buildOrDivider() {
-    return const Row(
-      children: [
-        Expanded(
-          child: Divider(
-            color: AppColors.divider,
-            thickness: 1.0,
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: AppSizes.p14),
-          child: Text(
-            "OR",
-            style: AppTextStyles.orDivider,
-          ),
-        ),
-        Expanded(
-          child: Divider(
-            color: AppColors.divider,
-            thickness: 1.0,
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ====================================================
-  // GOOGLE LOGIN BUTTON
-  // ====================================================
-  Widget _buildGoogleButton(AuthController controller) {
-    return GestureDetector(
-      onTap: controller.loginWithGoogle,
-      child: Container(
-        width: double.infinity,
-        height: AppSizes.buttonHeightLg,
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(AppSizes.r26),
-          border: Border.all(
-            color: AppColors.border,
-            width: 1.2,
-          ),
-        ),
-        alignment: Alignment.center,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _buildGoogleGLogo(),
-            const SizedBox(width: AppSizes.p10),
-            const Text(
-              "Continue with Google",
-              style: AppTextStyles.googleButtonText,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ====================================================
-  // GOOGLE 'G' ICON WIDGET
-  // ====================================================
-  Widget _buildGoogleGLogo() {
-    return SizedBox(
-      width: AppSizes.p20,
-      height: AppSizes.p20,
-      child: CustomPaint(
-        painter: _GoogleLogoPainter(),
-      ),
-    );
-  }
-
-  // ====================================================
   // TERMS & PRIVACY POLICY FOOTER
   // ====================================================
   Widget _buildTermsAndPrivacy() {
@@ -354,78 +276,3 @@ class AuthScreen extends StatelessWidget {
   }
 }
 
-// ====================================================
-// VECTOR GOOGLE 'G' PAINTER (Using AppColors)
-// ====================================================
-class _GoogleLogoPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final double w = size.width;
-    final double h = size.height;
-    final center = Offset(w / 2, h / 2);
-    final radius = w / 2;
-
-    // Red Arc
-    final redPaint = Paint()
-      ..color = AppColors.googleRed
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.5;
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius - 1.75),
-      3.14159 * 0.75,
-      3.14159 * 0.5,
-      false,
-      redPaint,
-    );
-
-    // Yellow Arc
-    final yellowPaint = Paint()
-      ..color = AppColors.googleYellow
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.5;
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius - 1.75),
-      3.14159 * 0.25,
-      3.14159 * 0.5,
-      false,
-      yellowPaint,
-    );
-
-    // Green Arc
-    final greenPaint = Paint()
-      ..color = AppColors.googleGreen
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.5;
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius - 1.75),
-      3.14159 * 1.25,
-      3.14159 * 0.5,
-      false,
-      greenPaint,
-    );
-
-    // Blue Arc & Bar
-    final bluePaint = Paint()
-      ..color = AppColors.googleBlue
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.5;
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius - 1.75),
-      3.14159 * 1.75,
-      3.14159 * 0.5,
-      false,
-      bluePaint,
-    );
-
-    final blueBarPaint = Paint()
-      ..color = AppColors.googleBlue
-      ..style = PaintingStyle.fill;
-    canvas.drawRect(
-      Rect.fromLTWH(w / 2 - 1, h / 2 - 1.75, w / 2 + 1, 3.5),
-      blueBarPaint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}

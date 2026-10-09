@@ -10,16 +10,16 @@ class AppAssets {
   static const String home5 = 'assets/images/home5.png';
 
   // Onboarding Images
-  static const String onboarding1 = 'assets/images/home2.png';
-  static const String onboarding2 = 'assets/images/home3.png';
-  static const String onboarding3 = 'assets/images/home4.png';
+  static const String onboarding1 = 'assets/images/onboarding/on1.jpeg';
+  static const String onboarding2 = 'assets/images/onboarding/on2.jpeg';
+  static const String onboarding3 = 'assets/images/onboarding/on3.jpeg';
 
   // Role Selection Images
   static const String home7 = 'assets/images/home7.png';
   static const String home8 = 'assets/images/home8.png';
   static const String home9 = 'assets/images/home9.png';
-  static const String roleCustomer = 'assets/images/home7.png';
-  static const String roleProvider = 'assets/images/home8.png';
+  static const String roleCustomer = 'assets/images/need.jpeg';
+  static const String roleProvider = 'assets/images/provide.jpeg';
 
   // Icons
   static const String icHome = 'assets/icons/ic_home.svg';

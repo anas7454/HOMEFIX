@@ -8,28 +8,39 @@ import '../core/utils/validators.dart';
 class BasicInfoController extends GetxController {
   final fullNameController = TextEditingController();
   final phoneController = TextEditingController();
-  final emailController = TextEditingController();
   final dobController = TextEditingController();
 
   final RxString selectedGender = ''.obs;
+  final RxString selectedCategory = ''.obs;
   final RxString profileImagePath = ''.obs;
   final RxBool isLoading = false.obs;
 
   final ImagePicker _imagePicker = ImagePicker();
 
   final List<String> genderOptions = ['Male', 'Female', 'Other'];
-
+  final List<String> categoryOptions = [
+    'Plumber',
+    'Electrician',
+    'Carpenter',
+    'AC Repair',
+    'Cleaning',
+    'Painting',
+    'Pest Control'
+  ];
   @override
   void onClose() {
     fullNameController.dispose();
     phoneController.dispose();
-    emailController.dispose();
     dobController.dispose();
     super.onClose();
   }
 
   void setGender(String gender) {
     selectedGender.value = gender;
+  }
+
+  void setCategory(String category) {
+    selectedCategory.value = category;
   }
 
   // Pick Image from Camera or Gallery
@@ -105,9 +116,9 @@ class BasicInfoController extends GetxController {
   void onContinue() {
     final fullName = fullNameController.text.trim();
     final phone = phoneController.text.trim();
-    final email = emailController.text.trim();
     final dob = dobController.text.trim();
     final gender = selectedGender.value.trim();
+    final category = selectedCategory.value.trim();
 
     // 1. Full Name Validation (Capitalize, No numbers/special characters)
     if (fullName.isEmpty) {
@@ -161,17 +172,6 @@ class BasicInfoController extends GetxController {
       return;
     }
 
-    // 3. Email Validation (If provided, must be valid)
-    if (email.isNotEmpty) {
-      final emailError = Validators.validateEmail(email);
-      if (emailError != null) {
-        Helpers.showSnackbar(
-          message: emailError,
-          isError: true,
-        );
-        return;
-      }
-    }
 
     // 4. Date of Birth Validation (Mandatory)
     if (dob.isEmpty) {
@@ -191,11 +191,20 @@ class BasicInfoController extends GetxController {
       return;
     }
 
+    // 6. Category Validation (Mandatory)
+    if (category.isEmpty) {
+      Helpers.showSnackbar(
+        message: 'Category is mandatory. Please select your category.',
+        isError: true,
+      );
+      return;
+    }
+
     // All validations passed -> proceed
     isLoading.value = true;
     Future.delayed(const Duration(milliseconds: 300), () {
       isLoading.value = false;
-      Get.toNamed(AppRoutes.serviceCategory);
+      Get.toNamed(AppRoutes.workDetails);
     });
   }
 }

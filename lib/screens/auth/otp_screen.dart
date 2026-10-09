@@ -74,6 +74,7 @@ class _OtpScreenState extends State<OtpScreen> {
         onTap: () => FocusScope.of(context).unfocus(),
         behavior: HitTestBehavior.translucent,
         child: Scaffold(
+          resizeToAvoidBottomInset: false,
           backgroundColor: AppColors.bgWarm,
           body: Stack(
             children: [
@@ -161,7 +162,12 @@ class _OtpScreenState extends State<OtpScreen> {
                     Expanded(
                       child: SingleChildScrollView(
                         physics: const BouncingScrollPhysics(),
-                        padding: const EdgeInsets.symmetric(horizontal: AppSizes.p22),
+                        padding: EdgeInsets.fromLTRB(
+                          AppSizes.p22,
+                          0,
+                          AppSizes.p22,
+                          MediaQuery.of(context).viewInsets.bottom + AppSizes.p22,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [

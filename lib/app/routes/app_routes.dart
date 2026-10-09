@@ -11,4 +11,5 @@ abstract class AppRoutes {
   static const dashboard = '/dashboard';
   static const bookings = '/bookings';
   static const properties = '/properties';
+  static const choosePlan = '/choose-plan';
 }

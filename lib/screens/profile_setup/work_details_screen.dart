@@ -122,6 +122,7 @@ class WorkDetailsScreen extends StatelessWidget {
                           icon: Icons.business_center_outlined,
                           label: 'Experience *',
                           valueText: controller.selectedExperience.value,
+                          hintText: 'Select experience',
                           showDropdownArrow: true,
                           onTap: () => _showSelectionBottomSheet(
                             context: context,
@@ -140,6 +141,7 @@ class WorkDetailsScreen extends StatelessWidget {
                           icon: Icons.location_on_outlined,
                           label: 'Service Area *',
                           valueText: controller.selectedArea.value,
+                          hintText: 'Select service area',
                           showDropdownArrow: true,
                           onTap: () => _showSelectionBottomSheet(
                             context: context,
@@ -162,6 +164,7 @@ class WorkDetailsScreen extends StatelessWidget {
                           icon: Icons.access_time_rounded,
                           label: 'Working Hours',
                           valueText: controller.selectedWorkingHours.value,
+                          hintText: 'Select working hours',
                           showDropdownArrow: true,
                           onTap: () => _showSelectionBottomSheet(
                             context: context,
@@ -175,74 +178,7 @@ class WorkDetailsScreen extends StatelessWidget {
                       const SizedBox(height: AppSizes.p18),
 
                       // 5. About Yourself *
-                      Row(
-                        children: const [
-                          Text(
-                            'About Yourself',
-                            style: AppTextStyles.workDetailsFieldLabel,
-                          ),
-                          Text(
-                            ' *',
-                            style: AppTextStyles.workDetailsFieldRequired,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: AppSizes.p8),
-
-                      // About Yourself Multiline Card
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(AppSizes.p14),
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(AppSizes.r16),
-                          border: Border.all(
-                            color: AppColors.borderLight,
-                            width: 1.2,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.02),
-                              blurRadius: 6.0,
-                              offset: const Offset(0, 2.0),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            TextFormField(
-                              controller: controller.aboutController,
-                              maxLines: 4,
-                              maxLength: 300,
-                              style: AppTextStyles.workDetailsAboutInput,
-                              buildCounter: (
-                                context, {
-                                required currentLength,
-                                required isFocused,
-                                maxLength,
-                              }) {
-                                return Align(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                    '$currentLength/$maxLength',
-                                    style: AppTextStyles.termsPrompt,
-                                  ),
-                                );
-                              },
-                              decoration: const InputDecoration(
-                                isDense: true,
-                                contentPadding: EdgeInsets.zero,
-                                hintText: 'Write about your background, skills and experience...',
-                                hintStyle: AppTextStyles.phoneHint,
-                                border: InputBorder.none,
-                                enabledBorder: InputBorder.none,
-                                focusedBorder: InputBorder.none,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      _AboutInputFieldCard(controller: controller),
 
                       const SizedBox(height: AppSizes.p24),
                     ],
@@ -426,6 +362,7 @@ class _StartingPriceCard extends StatelessWidget {
                           isDense: true,
                           contentPadding: EdgeInsets.zero,
                           hintText: '299',
+                          hintStyle: AppTextStyles.inputCardHint,
                           border: InputBorder.none,
                           enabledBorder: InputBorder.none,
                           focusedBorder: InputBorder.none,
@@ -546,6 +483,7 @@ class _WorkInputFieldCard extends StatelessWidget {
   final IconData icon;
   final String label;
   final String valueText;
+  final String hintText;
   final bool showDropdownArrow;
   final VoidCallback onTap;
 
@@ -553,21 +491,37 @@ class _WorkInputFieldCard extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.valueText,
+    required this.hintText,
     this.showDropdownArrow = false,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSizes.p14,
-          vertical: AppSizes.p10,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4.0, bottom: 8.0),
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontFamily: AppTextStyles.fontFamily,
+              fontSize: 14.5,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textTitle,
+            ),
+          ),
         ),
+        GestureDetector(
+          onTap: onTap,
+          behavior: HitTestBehavior.opaque,
+          child: Container(
+            width: double.infinity,
+            height: 52.0,
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSizes.p14,
+            ),
         decoration: BoxDecoration(
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(AppSizes.r16),
@@ -609,20 +563,11 @@ class _WorkInputFieldCard extends StatelessWidget {
 
             // Middle Text
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    label,
-                    style: AppTextStyles.inputCardLabel,
-                  ),
-                  const SizedBox(height: AppSizes.p2),
-                  Text(
-                    valueText,
-                    style: AppTextStyles.inputCardValue,
-                  ),
-                ],
+              child: Text(
+                valueText.isNotEmpty ? valueText : hintText,
+                style: valueText.isNotEmpty
+                    ? AppTextStyles.inputCardValue
+                    : AppTextStyles.inputCardHint,
               ),
             ),
 
@@ -639,6 +584,96 @@ class _WorkInputFieldCard extends StatelessWidget {
           ],
         ),
       ),
+      ),
+    ],
     );
   }
 }
+
+// ========================================================
+// ABOUT YOURSELF INPUT CARD
+// ========================================================
+class _AboutInputFieldCard extends StatelessWidget {
+  final WorkDetailsController controller;
+
+  const _AboutInputFieldCard({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(left: 4.0, bottom: 8.0),
+          child: Text(
+            'About Yourself *',
+            style: TextStyle(
+              fontFamily: AppTextStyles.fontFamily,
+              fontSize: 14.5,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textTitle,
+            ),
+          ),
+        ),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSizes.p14,
+            vertical: AppSizes.p12,
+          ),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(AppSizes.r16),
+            border: Border.all(
+              color: AppColors.borderLight,
+              width: 1.2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.02),
+                blurRadius: 6.0,
+                offset: const Offset(0, 2.0),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextFormField(
+                controller: controller.aboutController,
+                maxLines: 4,
+                style: AppTextStyles.inputCardValue,
+                decoration: const InputDecoration(
+                  isDense: true,
+                  contentPadding: EdgeInsets.zero,
+                  hintText: 'Briefly describe your experience and skills...',
+                  hintStyle: AppTextStyles.inputCardHint,
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                ),
+              ),
+              const SizedBox(height: AppSizes.p8),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Obx(
+                  () => Text(
+                    '${controller.charCount.value}/300',
+                    style: const TextStyle(
+                      fontFamily: AppTextStyles.fontFamily,
+                      fontSize: 12.0,
+                      color: AppColors.iconSlate,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+
+

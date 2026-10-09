@@ -264,14 +264,19 @@ class BasicInfoScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: AppSizes.p12),
 
-                        // 3. Email (Optional, Email keyboard, Done Action)
-                        _ProfileInputField(
-                          icon: Icons.mail_outline_rounded,
-                          label: 'Email (Optional)',
-                          controller: controller.emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          textInputAction: TextInputAction.done,
-                          hintText: 'Enter email address',
+                        // 3. Category (Mandatory, BottomSheet on tap)
+                        Obx(
+                          () => _ProfileInputField(
+                            icon: Icons.work_outline_rounded,
+                            label: 'Category *',
+                            valueText: controller.selectedCategory.value.isNotEmpty
+                                ? controller.selectedCategory.value
+                                : null,
+                            hintText: 'Select Category',
+                            readOnly: true,
+                            showDropdownArrow: true,
+                            onTap: () => _showCategoryPicker(context, controller),
+                          ),
                         ),
                         const SizedBox(height: AppSizes.p12),
 
@@ -579,6 +584,77 @@ class BasicInfoScreen extends StatelessWidget {
       },
     );
   }
+
+  // ========================================================
+  // CATEGORY PICKER BOTTOM SHEET
+  // ========================================================
+  void _showCategoryPicker(BuildContext context, BasicInfoController controller) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppSizes.r24)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSizes.p20,
+              vertical: AppSizes.p20,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40.0,
+                    height: 4.0,
+                    decoration: BoxDecoration(
+                      color: AppColors.border,
+                      borderRadius: BorderRadius.circular(AppSizes.p2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: AppSizes.p16),
+                const Text(
+                  'Select Category',
+                  style: AppTextStyles.bottomSheetTitle,
+                ),
+                const SizedBox(height: AppSizes.p12),
+                Expanded(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: controller.categoryOptions.length,
+                    itemBuilder: (context, index) {
+                      final category = controller.categoryOptions[index];
+                      final isSelected = controller.selectedCategory.value == category;
+                      return ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(
+                          category,
+                          style: isSelected
+                              ? AppTextStyles.bottomSheetItemSelected
+                              : AppTextStyles.bottomSheetItem,
+                        ),
+                        trailing: isSelected
+                            ? const Icon(Icons.check_circle_rounded, color: AppColors.primaryOrange)
+                            : null,
+                        onTap: () {
+                          controller.setCategory(category);
+                          Navigator.pop(context);
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
 
 // ========================================================
@@ -617,112 +693,117 @@ class _ProfileInputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSizes.p14,
-          vertical: AppSizes.p10,
-        ),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(AppSizes.r16),
-          border: Border.all(
-            color: AppColors.borderLight,
-            width: 1.2,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Label placed separately above the text field
+        Padding(
+          padding: const EdgeInsets.only(left: 4.0, bottom: 8.0),
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontFamily: AppTextStyles.fontFamily,
+              fontSize: 14.5,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textTitle,
+            ),
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
-              blurRadius: 6.0,
-              offset: const Offset(0, 2.0),
-            ),
-          ],
         ),
-        child: Row(
-          children: [
-            // Left Icon Box
-            Container(
-              width: 42.0,
-              height: 42.0,
-              decoration: BoxDecoration(
-                color: AppColors.surfaceLight,
-                borderRadius: BorderRadius.circular(AppSizes.r12),
-                border: Border.all(
-                  color: AppColors.border,
-                  width: 1.0,
-                ),
-              ),
-              child: Center(
-                child: Icon(
-                  icon,
-                  size: AppSizes.iconMd,
-                  color: AppColors.iconSlate,
-                ),
-              ),
+        
+        // Input Box
+        GestureDetector(
+          onTap: onTap,
+          behavior: HitTestBehavior.opaque,
+          child: Container(
+            width: double.infinity,
+            height: 52.0, // Fixed height for consistency
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSizes.p14,
             ),
-            const SizedBox(width: AppSizes.p14),
-
-            // Middle Text / Input Field
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Label
-                  Text(
-                    label,
-                    style: AppTextStyles.inputCardLabel,
-                  ),
-                  const SizedBox(height: AppSizes.p2),
-
-                  // Value or Input
-                  if (valueText != null)
-                    Text(
-                      valueText!,
-                      style: AppTextStyles.inputCardValue,
-                    )
-                  else
-                    TextFormField(
-                      controller: controller,
-                      readOnly: readOnly,
-                      keyboardType: keyboardType,
-                      textCapitalization: textCapitalization,
-                      textInputAction: textInputAction,
-                      inputFormatters: inputFormatters,
-                      maxLength: maxLength,
-                      onTap: onTap,
-                      style: AppTextStyles.inputCardValue,
-                      decoration: InputDecoration(
-                        isDense: true,
-                        contentPadding: EdgeInsets.zero,
-                        counterText: "",
-                        hintText: hintText,
-                        hintStyle: AppTextStyles.inputCardHint,
-                        border: InputBorder.none,
-                        enabledBorder: InputBorder.none,
-                        focusedBorder: InputBorder.none,
-                      ),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(AppSizes.r16),
+              border: Border.all(
+                color: AppColors.borderLight,
+                width: 1.2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.02),
+                  blurRadius: 6.0,
+                  offset: const Offset(0, 2.0),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                // Left Icon Box
+                Container(
+                  width: 42.0,
+                  height: 42.0,
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceLight,
+                    borderRadius: BorderRadius.circular(AppSizes.r12),
+                    border: Border.all(
+                      color: AppColors.border,
+                      width: 1.0,
                     ),
-                ],
-              ),
-            ),
-
-            // Optional Dropdown Arrow
-            if (showDropdownArrow)
-              const Padding(
-                padding: EdgeInsets.only(left: AppSizes.p8, right: AppSizes.p4),
-                child: Icon(
-                  Icons.keyboard_arrow_down_rounded,
-                  color: AppColors.iconSlate,
-                  size: 22.0,
+                  ),
+                  child: Center(
+                    child: Icon(
+                      icon,
+                      size: AppSizes.iconMd,
+                      color: AppColors.iconSlate,
+                    ),
+                  ),
                 ),
-              ),
-          ],
+                const SizedBox(width: AppSizes.p14),
+
+                // Middle Text / Input Field
+                Expanded(
+                  child: valueText != null
+                      ? Text(
+                          valueText!,
+                          style: AppTextStyles.inputCardValue,
+                        )
+                      : TextFormField(
+                          controller: controller,
+                          readOnly: readOnly,
+                          keyboardType: keyboardType,
+                          textCapitalization: textCapitalization,
+                          textInputAction: textInputAction,
+                          inputFormatters: inputFormatters,
+                          maxLength: maxLength,
+                          onTap: onTap,
+                          style: AppTextStyles.inputCardValue,
+                          decoration: InputDecoration(
+                            isDense: true,
+                            contentPadding: EdgeInsets.zero,
+                            counterText: "",
+                            hintText: hintText,
+                            hintStyle: AppTextStyles.inputCardHint,
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                          ),
+                        ),
+                ),
+
+                // Optional Dropdown Arrow
+                if (showDropdownArrow)
+                  const Padding(
+                    padding: EdgeInsets.only(left: AppSizes.p8, right: AppSizes.p4),
+                    child: Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      color: AppColors.iconSlate,
+                      size: 22.0,
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 }

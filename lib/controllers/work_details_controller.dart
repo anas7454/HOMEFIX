@@ -4,15 +4,12 @@ import '../app/routes/app_routes.dart';
 import '../core/utils/helpers.dart';
 
 class WorkDetailsController extends GetxController {
-  final RxString selectedExperience = '5+ Years'.obs;
-  final RxString selectedArea = 'Select Area'.obs;
-  final TextEditingController priceController = TextEditingController(text: '299');
+  final RxString selectedExperience = ''.obs;
+  final RxString selectedArea = ''.obs;
+  final TextEditingController priceController = TextEditingController();
   final RxString selectedRateUnit = 'Per visit / Per hour'.obs;
-  final RxString selectedWorkingHours = '9:00 AM - 8:00 PM'.obs;
-  final TextEditingController aboutController = TextEditingController(
-    text:
-        'I am a professional electrician with 5+ years of experience in home, office and industrial electrical work. Quality service and customer satisfaction is my priority.',
-  );
+  final RxString selectedWorkingHours = ''.obs;
+  final TextEditingController aboutController = TextEditingController();
 
   final RxInt charCount = 148.obs;
   final RxBool isLoading = false.obs;
@@ -71,6 +68,30 @@ class WorkDetailsController extends GetxController {
   void setWorkingHours(String hours) => selectedWorkingHours.value = hours;
 
   void onContinue() {
+    if (selectedExperience.value.trim().isEmpty) {
+      Helpers.showSnackbar(
+        message: 'Please select your experience',
+        isError: true,
+      );
+      return;
+    }
+
+    if (selectedArea.value.trim().isEmpty) {
+      Helpers.showSnackbar(
+        message: 'Please select your service area',
+        isError: true,
+      );
+      return;
+    }
+
+    if (priceController.text.trim().isEmpty) {
+      Helpers.showSnackbar(
+        message: 'Please enter your starting price',
+        isError: true,
+      );
+      return;
+    }
+
     if (aboutController.text.trim().isEmpty) {
       Helpers.showSnackbar(
         message: 'Please write a brief description about yourself',
@@ -83,7 +104,7 @@ class WorkDetailsController extends GetxController {
     Future.delayed(const Duration(milliseconds: 500), () {
       isLoading.value = false;
       // Navigate to Dashboard or next step
-      Get.offAllNamed(AppRoutes.dashboard);
+      Get.offAllNamed(AppRoutes.choosePlan);
     });
   }
 }

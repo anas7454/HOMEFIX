@@ -124,7 +124,7 @@ class RoleSelectionScreen extends StatelessWidget {
                           // ========================================================
                           Obx(
                             () => _RoleCard(
-                              imagePath: AppAssets.home7,
+                              imagePath: AppAssets.roleCustomer,
                               title: "I need a service",
                               description:
                                   "Book trusted professionals for\nyour home, office or personal needs.",
@@ -142,7 +142,7 @@ class RoleSelectionScreen extends StatelessWidget {
                           // ========================================================
                           Obx(
                             () => _RoleCard(
-                              imagePath: AppAssets.home8,
+                              imagePath: AppAssets.roleProvider,
                               title: "I provide services",
                               description:
                                   "Join as a professional and get\nnew job requests near you.",
