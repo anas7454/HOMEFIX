@@ -14,7 +14,9 @@ class InitialBinding extends Bindings {
   void dependencies() {
     // Services
     Get.put<StorageService>(StorageService(), permanent: true);
-    Get.put<NotificationService>(NotificationService(), permanent: true);
+    if (!Get.isRegistered<NotificationService>()) {
+      Get.put<NotificationService>(NotificationService(), permanent: true);
+    }
 
     // Network Client
     Get.put<ApiClient>(ApiClient(), permanent: true);

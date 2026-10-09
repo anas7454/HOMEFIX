@@ -6,6 +6,8 @@ import '../../controllers/auth_controller.dart';
 import '../../app/routes/app_routes.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../plans/choose_plan_screen.dart';
+import '../profile/profile_screen.dart';
+import '../bookings/booking_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -19,9 +21,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   final List<Widget> _pages = [
     const HomeScreen(),
-    const Center(child: Text('Bookings')),
+    const BookingScreen(),
     const ChoosePlanScreen(),
-    const Center(child: Text('Profile')),
+    const ProfileScreen(),
   ];
 
   @override
