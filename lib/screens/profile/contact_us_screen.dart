@@ -32,7 +32,7 @@ class ContactUsScreen extends StatelessWidget {
                         const Text(
                           'We are always\nready to help you',
                           style: TextStyle(
-                            fontSize: 22,
+                            fontSize: 19.0,
                             fontWeight: FontWeight.w900,
                             color: Color(0xFF001F3F),
                             height: 1.3,
@@ -42,7 +42,7 @@ class ContactUsScreen extends StatelessWidget {
                         Text(
                           'If you have any kind of problem\nor question, please contact\nour support team.',
                           style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 12.0,
                             color: Colors.grey.shade600,
                             height: 1.5,
                             fontWeight: FontWeight.w500,
@@ -114,7 +114,7 @@ class ContactUsScreen extends StatelessWidget {
                             'Support Availability',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 15,
+                              fontSize: 13.0,
                               color: Color(0xFF001F3F),
                             ),
                           ),
@@ -122,7 +122,7 @@ class ContactUsScreen extends StatelessWidget {
                           Text(
                             'We are available everyday from 9 AM to 9 PM.',
                             style: TextStyle(
-                              fontSize: 11,
+                              fontSize: 11.0,
                               color: Colors.grey.shade600,
                               fontWeight: FontWeight.w500,
                             ),
@@ -152,7 +152,7 @@ class ContactUsScreen extends StatelessWidget {
                             'Online',
                             style: TextStyle(
                               color: Colors.green,
-                              fontSize: 12,
+                              fontSize: 11.0,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -219,7 +219,7 @@ class ContactUsScreen extends StatelessWidget {
                             'We usually reply within 1-2 hours.',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 14,
+                              fontSize: 12.0,
                               color: Color(0xFF001F3F),
                             ),
                           ),
@@ -227,7 +227,7 @@ class ContactUsScreen extends StatelessWidget {
                           Text(
                             'You can message us anytime,\nwe will help you as soon as possible.',
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 11.0,
                               color: Colors.grey.shade700,
                               height: 1.4,
                               fontWeight: FontWeight.w500,
@@ -288,7 +288,7 @@ class ContactUsScreen extends StatelessWidget {
                   title,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                    fontSize: 14.0,
                     color: Color(0xFF001F3F),
                   ),
                 ),
@@ -296,7 +296,7 @@ class ContactUsScreen extends StatelessWidget {
                 Text(
                   subtitle,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 11.0,
                     color: Colors.grey.shade600,
                     fontWeight: FontWeight.w500,
                   ),
@@ -306,7 +306,7 @@ class ContactUsScreen extends StatelessWidget {
                   value,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 15,
+                    fontSize: 13.0,
                     color: Colors.black,
                   ),
                 ),

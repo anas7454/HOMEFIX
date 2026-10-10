@@ -29,7 +29,7 @@ class TermsConditionsScreen extends StatelessWidget {
                         const Text(
                           'Terms &\nConditions',
                           style: TextStyle(
-                            fontSize: 24,
+                            fontSize: 20.0,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF001F3F),
                             height: 1.2,
@@ -39,7 +39,7 @@ class TermsConditionsScreen extends StatelessWidget {
                         Text(
                           'Please read our terms and conditions carefully before using the HomeFix app.',
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 12.0,
                             color: Colors.grey.shade600,
                             height: 1.5,
                           ),
@@ -136,14 +136,14 @@ class TermsConditionsScreen extends StatelessWidget {
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF001F3F),
-                              fontSize: 16,
+                              fontSize: 14.0,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             'Feel free to contact our support team anytime.',
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 11.0,
                               color: Colors.grey.shade700,
                             ),
                           ),
@@ -197,7 +197,7 @@ class TermsConditionsScreen extends StatelessWidget {
                   title,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                    fontSize: 14.0,
                     color: Color(0xFF001F3F),
                   ),
                 ),
@@ -205,7 +205,7 @@ class TermsConditionsScreen extends StatelessWidget {
                 Text(
                   description,
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 12.0,
                     color: Colors.grey.shade600,
                     height: 1.4,
                   ),

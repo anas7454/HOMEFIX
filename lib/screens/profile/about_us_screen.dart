@@ -37,7 +37,7 @@ class AboutUsScreen extends StatelessWidget {
                       const Text(
                         'HomeFix',
                         style: TextStyle(
-                          fontSize: 28,
+                          fontSize: 24.0,
                           fontWeight: FontWeight.bold,
                           color: Colors.deepOrange,
                         ),
@@ -46,7 +46,7 @@ class AboutUsScreen extends StatelessWidget {
                       const Text(
                         'Your Trusted\nHome Services\nPartner',
                         style: TextStyle(
-                          fontSize: 22,
+                          fontSize: 19.0,
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF001F3F),
                           height: 1.2,
@@ -58,7 +58,7 @@ class AboutUsScreen extends StatelessWidget {
                         child: Text(
                           'We make it easy to find verified and skilled professionals for all your home service needs.',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 11.0,
                             color: Colors.grey.shade700,
                           ),
                         ),
@@ -104,7 +104,7 @@ class AboutUsScreen extends StatelessWidget {
               child: Text(
                 'Why Choose HomeFix?',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 16.0,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF001F3F),
                 ),
@@ -158,7 +158,7 @@ class AboutUsScreen extends StatelessWidget {
                           const Text(
                             'Our Mission',
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: 14.0,
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF001F3F),
                             ),
@@ -167,7 +167,7 @@ class AboutUsScreen extends StatelessWidget {
                           Text(
                             'To make home services simple, reliable and accessible for everyone.',
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 12.0,
                               color: Colors.grey.shade700,
                             ),
                           ),
@@ -193,7 +193,7 @@ class AboutUsScreen extends StatelessWidget {
         Text(
           value,
           style: const TextStyle(
-            fontSize: 16,
+            fontSize: 14.0,
             fontWeight: FontWeight.bold,
             color: Color(0xFF001F3F),
           ),
@@ -203,7 +203,7 @@ class AboutUsScreen extends StatelessWidget {
           label,
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 10,
+            fontSize: 10.0,
             color: Colors.grey.shade600,
           ),
         ),
@@ -239,7 +239,7 @@ class AboutUsScreen extends StatelessWidget {
                 Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 11.0,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF001F3F),
                   ),
@@ -248,7 +248,7 @@ class AboutUsScreen extends StatelessWidget {
                 Text(
                   subtitle,
                   style: TextStyle(
-                    fontSize: 9,
+                    fontSize: 9.0,
                     color: Colors.grey.shade600,
                   ),
                   maxLines: 2,

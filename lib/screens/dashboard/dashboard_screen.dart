@@ -82,7 +82,7 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 2),
-                Text('Sector 62, Noida', style: TextStyle(color: const Color(0xFF001F3F).withOpacity(0.7), fontSize: 12, fontWeight: FontWeight.w500)),
+                Text('Sector 62, Noida', style: TextStyle(color: const Color(0xFF001F3F).withOpacity(0.7), fontSize: 11, fontWeight: FontWeight.w500)),
               ],
             ),
           ],
@@ -148,7 +148,7 @@ class HomeScreen extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 2),
-                        const Text('Sector 62, Noida', style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w500)),
+                        const Text('Sector 62, Noida', style: TextStyle(color: Colors.grey, fontSize: 11, fontWeight: FontWeight.w500)),
                       ],
                     ),
                     const Spacer(),
@@ -184,13 +184,13 @@ class HomeScreen extends StatelessWidget {
               CarouselSlider(
                 options: CarouselOptions(
                   height: 140.0,
-                  autoPlay: true,
+                  autoPlay: false,
                   enlargeCenterPage: true,
                   viewportFraction: 0.92,
                   autoPlayAnimationDuration: const Duration(milliseconds: 800),
                   autoPlayCurve: Curves.fastOutSlowIn,
                 ),
-              items: [1, 2].map((i) {
+              items: [1].map((i) {
                 return Builder(
                   builder: (BuildContext context) {
                     return Container(
@@ -210,19 +210,6 @@ class HomeScreen extends StatelessWidget {
             ),
 
             const SizedBox(height: 16),
-
-            // Trust Badges
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildTrustBadge(Icons.verified, 'Verified\nProfessionals', Colors.orange),
-                  _buildTrustBadge(Icons.security, 'Safe & Secure\nPayments', Colors.green),
-                  _buildTrustBadge(Icons.support_agent, 'On-Time\nService', Colors.orange),
-                ],
-              ),
-            ),
 
             const SizedBox(height: 24),
 
@@ -276,17 +263,21 @@ class HomeScreen extends StatelessWidget {
             
             const SizedBox(height: 16),
             
-            SizedBox(
-              height: 220,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                children: [
+            CarouselSlider(
+              options: CarouselOptions(
+                height: 270.0,
+                autoPlay: true,
+                enlargeCenterPage: true,
+                viewportFraction: 0.9,
+                autoPlayInterval: const Duration(seconds: 4),
+                autoPlayAnimationDuration: const Duration(milliseconds: 800),
+                autoPlayCurve: Curves.fastOutSlowIn,
+              ),
+              items: [
                   _buildWorkerCard(name: 'Rohit Sharma', role: 'Electrician', rating: '4.8', reviews: '120', location: '2 km away', price: '?299', skills: 'Wiring, Switchboard', image: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=200&auto=format&fit=crop'),
                   _buildWorkerCard(name: 'Amit Verma', role: 'Plumber', rating: '4.7', reviews: '85', location: '3 km away', price: '?199', skills: 'Pipe Fitting, Leakage', image: 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a?q=80&w=200&auto=format&fit=crop'),
                   _buildWorkerCard(name: 'Sandeep K', role: 'Painter', rating: '4.9', reviews: '200', location: '1 km away', price: '?499', skills: 'Wall Painting, Texture', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop'),
                 ],
-              ),
             ),
             
             const SizedBox(height: 24),
@@ -317,10 +308,10 @@ class HomeScreen extends StatelessWidget {
           Expanded(
             child: Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: bgColor,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
                     color: bgColor.withOpacity(0.5),
@@ -353,114 +344,170 @@ class HomeScreen extends StatelessWidget {
     required String image,
   }) {
     return Container(
-      width: 190,
-      margin: const EdgeInsets.only(right: 16),
-      padding: const EdgeInsets.all(12),
+      width: double.infinity, margin: const EdgeInsets.only(bottom: 8, top: 4),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  image,
-                  width: 48,
-                  height: 48,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    width: 48,
-                    height: 48,
-                    color: Colors.grey.shade200,
-                    child: const Icon(Icons.person, color: Colors.grey),
+              // Profile Image
+              Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      image,
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
+                    ),
                   ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      width: 14,
+                      height: 14,
+                      decoration: BoxDecoration(
+                        color: Colors.green,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 12),
+              
+              // Details
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        const SizedBox(width: 4),
+                        const Icon(Icons.verified, color: Colors.orange, size: 16),
+                      ],
+                    ),
+                    Text(role, style: const TextStyle(color: Colors.grey, fontSize: 14)),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const Icon(Icons.star, color: Colors.orange, size: 14),
+                        const SizedBox(width: 4),
+                        Text(rating, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                        Text(' ($reviews)', style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const Icon(Icons.location_on, color: Colors.orange, size: 14),
+                        const SizedBox(width: 4),
+                        Text(location, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.orange.shade50,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.star, color: Colors.orange, size: 12),
-                    const SizedBox(width: 2),
-                    Text(rating, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                  ],
+              
+              // Price and View Profile
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  // View Profile chhota sa uper
+                  InkWell(
+                    onTap: () {},
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.shade50,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Text('View Profile', style: TextStyle(color: Colors.orange, fontSize: 10, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(price, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  const Text('per visit', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          
+          // Skills & Buttons
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    skills,
+                    style: const TextStyle(color: Colors.black54, fontSize: 11),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 12),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                child: Text(
-                  name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                child: OutlinedButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.phone, color: Colors.orange, size: 16),
+                  label: const Text('Call', style: TextStyle(color: Colors.orange)),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Colors.orange),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
                 ),
               ),
-              const SizedBox(width: 4),
-              const Icon(Icons.verified, color: Colors.orange, size: 14),
-            ],
-          ),
-          Text(role, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Text('$reviews reviews', style: const TextStyle(fontSize: 11, color: Colors.grey)),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              const Icon(Icons.location_on, size: 12, color: Colors.grey),
-              const SizedBox(width: 2),
+              const SizedBox(width: 12),
               Expanded(
-                child: Text(
-                  location,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 11, color: Colors.grey),
+                child: ElevatedButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.chat, color: Colors.white, size: 16),
+                  label: const Text('WhatsApp'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    elevation: 0,
+                  ),
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            skills,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 11, color: Colors.black54),
-          ),
-          const SizedBox(height: 8),
-          Text(price, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          const SizedBox(height: 8),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              onPressed: () {},
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Colors.deepOrange),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                padding: const EdgeInsets.symmetric(vertical: 8),
-              ),
-              child: const Text('Book Now', style: TextStyle(color: Colors.deepOrange)),
-            ),
           ),
         ],
       ),
     );
   }
 }
+
+
 

@@ -26,7 +26,7 @@ class NotificationService extends GetxService {
       iOS: iosSettings,
     );
 
-    await _notifications.initialize(initSettings);
+    await _notifications.initialize(settings: initSettings);
 
     await _notifications
         .resolvePlatformSpecificImplementation<
@@ -73,10 +73,10 @@ class NotificationService extends GetxService {
     );
 
     await _notifications.show(
-      DateTime.now().millisecondsSinceEpoch ~/ 1000,
-      title,
-      body,
-      details,
+      id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      title: title,
+      body: body,
+      notificationDetails: details,
       payload: payload,
     );
   }
