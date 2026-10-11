@@ -218,10 +218,24 @@ class BasicInfoScreen extends StatelessWidget {
                                 ),
                                 const SizedBox(height: AppSizes.p10),
 
-                                // "Add Profile Photo" Label
-                                const Text(
-                                  'Add Profile Photo',
-                                  style: AppTextStyles.addPhotoLabel,
+                                // "Add Profile Photo" Label (Mandatory)
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: const [
+                                    Text(
+                                      'Profile Photo',
+                                      style: AppTextStyles.addPhotoLabel,
+                                    ),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      '* Mandatory',
+                                      style: TextStyle(
+                                        color: Colors.red,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
@@ -248,19 +262,14 @@ class BasicInfoScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: AppSizes.p12),
 
-                        // 2. Mobile Number (Strict 10 digits as in Login screen, Next Action)
+                        // 2. Mobile Number (Prefilled & Verified from Login OTP)
                         _ProfileInputField(
                           icon: Icons.phone_outlined,
-                          label: 'Mobile Number *',
+                          label: 'Mobile Number (Verified) *',
                           controller: controller.phoneController,
                           keyboardType: TextInputType.phone,
-                          textInputAction: TextInputAction.next,
-                          hintText: 'Enter 10-digit number',
-                          maxLength: 10,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                            LengthLimitingTextInputFormatter(10),
-                          ],
+                          readOnly: true,
+                          hintText: 'Verified Mobile Number',
                         ),
                         const SizedBox(height: AppSizes.p12),
 

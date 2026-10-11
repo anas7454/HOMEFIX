@@ -21,7 +21,8 @@ class BookingController extends GetxController {
     try {
       isLoading.value = true;
       final list = await bookingRepository.fetchBookings();
-      bookings.assignAll(list);
+      final models = list.map((item) => BookingModel.fromJson(item)).toList();
+      bookings.assignAll(models);
     } catch (e) {
       Helpers.showSnackbar(title: 'Error', message: e.toString(), isError: true);
     } finally {

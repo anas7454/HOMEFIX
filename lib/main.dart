@@ -7,9 +7,19 @@ import 'app/routes/app_pages.dart';
 import 'app/theme/app_theme.dart';
 import 'core/constants/app_strings.dart';
 import 'core/services/notification_service.dart';
+import 'core/services/storage_service.dart';
+import 'core/services/supabase_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Supabase & Storage
+  await SupabaseService.init();
+  await Get.putAsync<StorageService>(
+    () => StorageService().init(),
+    permanent: true,
+  );
+
   await Get.putAsync<NotificationService>(
     () => NotificationService().init(),
     permanent: true,

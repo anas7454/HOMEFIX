@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../widgets/custom_app_bar.dart';
+import '../../widgets/app_avatar.dart';
+import '../../data/repositories/service_repository.dart';
+import '../../core/utils/helpers.dart';
+import '../../core/services/location_service.dart';
 
 class CategoryWorkersScreen extends StatefulWidget {
   final String categoryName;
@@ -11,8 +15,50 @@ class CategoryWorkersScreen extends StatefulWidget {
 }
 
 class _CategoryWorkersScreenState extends State<CategoryWorkersScreen> {
-  final List<String> categories = ['All', 'Electrician', 'Plumber', 'Carpenter', 'Painter'];
-  String selectedCategory = 'All';
+  final ServiceRepository _serviceRepository = ServiceRepository();
+  final List<String> categories = ['All', 'Electrician', 'Plumber', 'Carpenter', 'Painting', 'AC Repair', 'Cleaning'];
+  late String selectedCategory;
+  bool _isLoading = true;
+  List<Map<String, dynamic>> _realWorkers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    final initialCat = widget.categoryName;
+    if (categories.any((c) => c.toLowerCase() == initialCat.toLowerCase())) {
+      selectedCategory = categories.firstWhere((c) => c.toLowerCase() == initialCat.toLowerCase());
+    } else {
+      selectedCategory = initialCat.toLowerCase() == 'workers' ? 'All' : initialCat;
+    }
+    _loadWorkers();
+  }
+
+  Future<void> _loadWorkers() async {
+    setState(() => _isLoading = true);
+    double? userLat;
+    double? userLng;
+    try {
+      final pos = await LocationService.getCurrentPosition();
+      if (pos != null) {
+        userLat = pos.latitude;
+        userLng = pos.longitude;
+      }
+    } catch (_) {}
+
+    final catToFilter = selectedCategory == 'All' ? null : selectedCategory;
+    final data = await _serviceRepository.fetchWorkers(
+      category: catToFilter,
+      userLatitude: userLat,
+      userLongitude: userLng,
+      maxRadiusKm: 20.0,
+    );
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+        _realWorkers = data;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,9 +119,12 @@ class _CategoryWorkersScreenState extends State<CategoryWorkersScreen> {
                     ),
                     selected: isSelected,
                     onSelected: (selected) {
-                      setState(() {
-                        selectedCategory = categories[index];
-                      });
+                      if (selectedCategory != categories[index]) {
+                        setState(() {
+                          selectedCategory = categories[index];
+                        });
+                        _loadWorkers();
+                      }
                     },
                     selectedColor: Colors.orange,
                     backgroundColor: Colors.white,
@@ -94,51 +143,92 @@ class _CategoryWorkersScreenState extends State<CategoryWorkersScreen> {
           
           // Worker List
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              children: [
-                _buildWorkerCard(
-                  name: 'Rohit Kumar',
-                  role: 'Electrician',
-                  rating: '4.8',
-                  reviews: '128 reviews',
-                  location: 'Moradabad, UP',
-                  price: '₹300',
-                  skills: 'Electrical Repair, Wiring, Installation',
-                  image: 'https://i.pravatar.cc/150?img=11',
-                ),
-                _buildWorkerCard(
-                  name: 'Amit Sharma',
-                  role: 'Plumber',
-                  rating: '4.6',
-                  reviews: '96 reviews',
-                  location: 'Rampur, UP',
-                  price: '₹250',
-                  skills: 'Pipe Fitting, Leakage, Bathroom Repair',
-                  image: 'https://i.pravatar.cc/150?img=12',
-                ),
-                _buildWorkerCard(
-                  name: 'Sandeep Yadav',
-                  role: 'Carpenter',
-                  rating: '4.7',
-                  reviews: '84 reviews',
-                  location: 'Moradabad, UP',
-                  price: '₹350',
-                  skills: 'Furniture, Doors, Windows, Modular Work',
-                  image: 'https://i.pravatar.cc/150?img=13',
-                ),
-                _buildWorkerCard(
-                  name: 'Imran Khan',
-                  role: 'Painter',
-                  rating: '4.5',
-                  reviews: '62 reviews',
-                  location: 'Amroha, UP',
-                  price: '₹280',
-                  skills: 'Wall Painting, Texture, Polish',
-                  image: 'https://i.pravatar.cc/150?img=14',
-                ),
-              ],
-            ),
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator(color: Colors.deepOrange))
+                : _realWorkers.isEmpty
+                    ? RefreshIndicator(
+                        color: Colors.deepOrange,
+                        onRefresh: _loadWorkers,
+                        child: ListView(
+                          children: [
+                            SizedBox(height: MediaQuery.of(context).size.height * 0.15),
+                            Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    width: 80,
+                                    height: 80,
+                                    decoration: BoxDecoration(
+                                      color: Colors.deepOrange.shade50,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.engineering_outlined,
+                                      size: 40,
+                                      color: Colors.deepOrange,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  const Text(
+                                    'No Workers Registered Yet',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF001F3F),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    'When workers sign up in Supabase, they will appear here.',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  ElevatedButton.icon(
+                                    onPressed: _loadWorkers,
+                                    icon: const Icon(Icons.refresh, size: 16),
+                                    label: const Text('Refresh'),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.deepOrange,
+                                      foregroundColor: Colors.white,
+                                      elevation: 0,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : RefreshIndicator(
+                        color: Colors.deepOrange,
+                        onRefresh: _loadWorkers,
+                        child: ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          itemCount: _realWorkers.length,
+                          itemBuilder: (context, index) {
+                            final worker = _realWorkers[index];
+                            return _buildWorkerCard(
+                              name: worker['name'] ?? 'Worker',
+                              role: worker['skills'] ?? widget.categoryName,
+                              rating: worker['rating'] ?? '5.0',
+                              reviews: '${worker['reviews'] ?? '1'} review',
+                              location: worker['distanceKm'] != null ? '${worker['city'] ?? 'Nearby'} (${worker['distanceKm']})' : (worker['city'] ?? worker['location'] ?? 'Delhi NCR'),
+                              price: worker['price'] ?? '₹299',
+                              skills: worker['skills'] ?? '',
+                              image: worker['image'] ?? worker['avatar'] ?? 'https://i.pravatar.cc/150?img=11',
+                              phone: worker['phone'],
+                            );
+                          },
+                        ),
+                      ),
           ),
         ],
       ),
@@ -154,6 +244,7 @@ class _CategoryWorkersScreenState extends State<CategoryWorkersScreen> {
     required String price,
     required String skills,
     required String image,
+    String? phone,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -177,14 +268,9 @@ class _CategoryWorkersScreenState extends State<CategoryWorkersScreen> {
               // Profile Image
               Stack(
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.network(
-                      image,
-                      width: 60,
-                      height: 60,
-                      fit: BoxFit.cover,
-                    ),
+                  AppAvatar(
+                    avatarUrl: image,
+                    size: 60,
                   ),
                   Positioned(
                     bottom: 0,
@@ -288,7 +374,9 @@ class _CategoryWorkersScreenState extends State<CategoryWorkersScreen> {
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    Helpers.makePhoneCall(phone);
+                  },
                   icon: const Icon(Icons.phone, color: Colors.orange, size: 16),
                   label: const Text('Call', style: TextStyle(color: Colors.orange)),
                   style: OutlinedButton.styleFrom(
@@ -301,7 +389,9 @@ class _CategoryWorkersScreenState extends State<CategoryWorkersScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    Helpers.openWhatsApp(phone);
+                  },
                   icon: const Icon(Icons.chat, color: Colors.white, size: 16),
                   label: const Text('WhatsApp'),
                   style: ElevatedButton.styleFrom(

@@ -1,4 +1,4 @@
-package com.example.homefix
+package com.homefix.user
 
 import android.os.Build
 import android.os.Bundle

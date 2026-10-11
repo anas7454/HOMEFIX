@@ -3,11 +3,15 @@ import 'package:get/get.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'category_workers_screen.dart';
 import '../../controllers/auth_controller.dart';
-import '../../app/routes/app_routes.dart';
+import '../../data/repositories/service_repository.dart';
 import '../../widgets/custom_app_bar.dart';
+import '../../widgets/app_avatar.dart';
 import '../plans/choose_plan_screen.dart';
 import '../profile/profile_screen.dart';
 import '../bookings/booking_screen.dart';
+import '../../core/services/storage_service.dart';
+import '../../core/services/location_service.dart';
+import '../../core/utils/helpers.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -19,40 +23,140 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   int _selectedIndex = 0;
 
-  final List<Widget> _pages = [
-    const HomeScreen(),
-    const BookingScreen(),
-    const ChoosePlanScreen(),
-    const ProfileScreen(),
-  ];
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.deepOrange,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.calendar_month_outlined), activeIcon: Icon(Icons.calendar_month), label: 'Bookings'),
-          BottomNavigationBarItem(icon: Icon(Icons.workspace_premium_outlined), activeIcon: Icon(Icons.workspace_premium), label: 'Plan'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), activeIcon: Icon(Icons.person), label: 'Profile'),
-        ],
-      ),
-    );
+    return Obx(() {
+      final authController = Get.isRegistered<AuthController>() ? Get.find<AuthController>() : null;
+      var isWorker = authController?.user.value?.isWorker ?? false;
+
+      // Fallback check in local storage if user value in controller was momentarily unpopulated
+      if (!isWorker && Get.isRegistered<StorageService>()) {
+        try {
+          final storage = Get.find<StorageService>();
+          final dynamic raw = storage.read('current_user');
+          if (raw is Map && raw['role'] == 'worker') {
+            isWorker = true;
+          }
+        } catch (_) {}
+      }
+
+      final List<Widget> pages = isWorker
+          ? const [
+              BookingScreen(),
+              ChoosePlanScreen(showBackButton: false),
+              ProfileScreen(),
+            ]
+          : const [
+              HomeScreen(),
+              CategoryWorkersScreen(categoryName: 'Workers'),
+              BookingScreen(),
+              ProfileScreen(),
+            ];
+
+      final List<BottomNavigationBarItem> navItems = isWorker
+          ? const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.assignment_outlined),
+                activeIcon: Icon(Icons.assignment),
+                label: 'Requests',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.workspace_premium_outlined),
+                activeIcon: Icon(Icons.workspace_premium),
+                label: 'Plans',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person_outline),
+                activeIcon: Icon(Icons.person),
+                label: 'Profile',
+              ),
+            ]
+          : const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home_outlined),
+                activeIcon: Icon(Icons.home),
+                label: 'Home',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.engineering_outlined),
+                activeIcon: Icon(Icons.engineering),
+                label: 'Workers',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.calendar_month_outlined),
+                activeIcon: Icon(Icons.calendar_month),
+                label: 'Bookings',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person_outline),
+                activeIcon: Icon(Icons.person),
+                label: 'Profile',
+              ),
+            ];
+
+      final safeIndex = _selectedIndex < pages.length ? _selectedIndex : 0;
+
+      return Scaffold(
+        body: pages[safeIndex],
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: safeIndex,
+          onTap: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+          type: BottomNavigationBarType.fixed,
+          selectedItemColor: Colors.deepOrange,
+          unselectedItemColor: Colors.grey,
+          items: navItems,
+        ),
+      );
+    });
   }
 }
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final ServiceRepository _serviceRepository = ServiceRepository();
+  List<Map<String, dynamic>> _topWorkers = [];
+  bool _isLoadingWorkers = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTopWorkers();
+  }
+
+  Future<void> _loadTopWorkers() async {
+    setState(() => _isLoadingWorkers = true);
+    double? userLat;
+    double? userLng;
+    try {
+      final pos = await LocationService.getCurrentPosition();
+      if (pos != null) {
+        userLat = pos.latitude;
+        userLng = pos.longitude;
+      }
+    } catch (_) {}
+
+    final workers = await _serviceRepository.fetchWorkers(
+      userLatitude: userLat,
+      userLongitude: userLng,
+      maxRadiusKm: 20.0,
+    );
+    if (mounted) {
+      setState(() {
+        _isLoadingWorkers = false;
+        _topWorkers = workers;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -263,22 +367,75 @@ class HomeScreen extends StatelessWidget {
             
             const SizedBox(height: 16),
             
-            CarouselSlider(
-              options: CarouselOptions(
-                height: 270.0,
-                autoPlay: true,
-                enlargeCenterPage: true,
-                viewportFraction: 0.9,
-                autoPlayInterval: const Duration(seconds: 4),
-                autoPlayAnimationDuration: const Duration(milliseconds: 800),
-                autoPlayCurve: Curves.fastOutSlowIn,
-              ),
-              items: [
-                  _buildWorkerCard(name: 'Rohit Sharma', role: 'Electrician', rating: '4.8', reviews: '120', location: '2 km away', price: '?299', skills: 'Wiring, Switchboard', image: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=200&auto=format&fit=crop'),
-                  _buildWorkerCard(name: 'Amit Verma', role: 'Plumber', rating: '4.7', reviews: '85', location: '3 km away', price: '?199', skills: 'Pipe Fitting, Leakage', image: 'https://images.unsplash.com/photo-1540569014015-19a7be504e3a?q=80&w=200&auto=format&fit=crop'),
-                  _buildWorkerCard(name: 'Sandeep K', role: 'Painter', rating: '4.9', reviews: '200', location: '1 km away', price: '?499', skills: 'Wall Painting, Texture', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&auto=format&fit=crop'),
-                ],
-            ),
+            _isLoadingWorkers
+                ? const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(24.0),
+                      child: CircularProgressIndicator(color: Colors.deepOrange),
+                    ),
+                  )
+                : _topWorkers.isEmpty
+                    ? Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 20),
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.grey.shade200),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.deepOrange.shade50,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.people_outline, color: Colors.deepOrange),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'No Workers Yet',
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                  ),
+                                  Text(
+                                    'New service professionals will appear here as they sign up.',
+                                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : CarouselSlider(
+                        options: CarouselOptions(
+                          height: 270.0,
+                          autoPlay: _topWorkers.length > 1,
+                          enlargeCenterPage: true,
+                          viewportFraction: 0.9,
+                          autoPlayInterval: const Duration(seconds: 4),
+                          autoPlayAnimationDuration: const Duration(milliseconds: 800),
+                          autoPlayCurve: Curves.fastOutSlowIn,
+                        ),
+                        items: _topWorkers.map((w) {
+                          return _buildWorkerCard(
+                            name: w['name'] ?? 'Worker',
+                            role: w['role'] ?? w['skills'] ?? 'Professional',
+                            rating: w['rating'] ?? '5.0',
+                            reviews: w['reviews'] ?? '1',
+                            location: w['distanceKm'] != null ? '${w['city'] ?? 'Nearby'} (${w['distanceKm']})' : (w['location'] ?? w['city'] ?? 'Delhi NCR'),
+                            price: w['price'] ?? '₹299',
+                            skills: w['skills'] ?? '',
+                            image: w['image'] ?? w['avatar'] ?? 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=200&auto=format&fit=crop',
+                            phone: w['phone'],
+                          );
+                        }).toList(),
+                      ),
             
             const SizedBox(height: 24),
           ],
@@ -342,6 +499,7 @@ class HomeScreen extends StatelessWidget {
     required String price,
     required String skills,
     required String image,
+    String? phone,
   }) {
     return Container(
       width: double.infinity, margin: const EdgeInsets.only(bottom: 8, top: 4),
@@ -365,14 +523,9 @@ class HomeScreen extends StatelessWidget {
               // Profile Image
               Stack(
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.network(
-                      image,
-                      width: 60,
-                      height: 60,
-                      fit: BoxFit.cover,
-                    ),
+                  AppAvatar(
+                    avatarUrl: image,
+                    size: 60,
                   ),
                   Positioned(
                     bottom: 0,
@@ -476,7 +629,9 @@ class HomeScreen extends StatelessWidget {
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    Helpers.makePhoneCall(phone);
+                  },
                   icon: const Icon(Icons.phone, color: Colors.orange, size: 16),
                   label: const Text('Call', style: TextStyle(color: Colors.orange)),
                   style: OutlinedButton.styleFrom(
@@ -489,7 +644,9 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    Helpers.openWhatsApp(phone);
+                  },
                   icon: const Icon(Icons.chat, color: Colors.white, size: 16),
                   label: const Text('WhatsApp'),
                   style: ElevatedButton.styleFrom(
@@ -508,6 +665,5 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
-
 
 

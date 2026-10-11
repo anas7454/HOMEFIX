@@ -15,13 +15,17 @@ class BookingModel {
 
   factory BookingModel.fromJson(Map<String, dynamic> json) {
     return BookingModel(
-      id: json['id'] ?? '',
-      serviceName: json['serviceName'] ?? '',
+      id: json['id']?.toString() ?? '',
+      serviceName: (json['service'] is Map)
+          ? (json['service']['title'] ?? 'HomeFix Service')
+          : (json['serviceName'] ?? 'HomeFix Service'),
       status: json['status'] ?? 'pending',
-      bookingDate: json['bookingDate'] != null
-          ? DateTime.parse(json['bookingDate'])
-          : DateTime.now(),
-      price: (json['price'] ?? 0).toDouble(),
+      bookingDate: json['booking_date'] != null
+          ? (DateTime.tryParse(json['booking_date'].toString()) ?? DateTime.now())
+          : (json['bookingDate'] != null
+              ? (DateTime.tryParse(json['bookingDate'].toString()) ?? DateTime.now())
+              : DateTime.now()),
+      price: (json['total_amount'] ?? json['price'] ?? 0).toDouble(),
     );
   }
 

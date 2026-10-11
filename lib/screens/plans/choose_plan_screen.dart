@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../app/routes/app_routes.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_text_styles.dart';
 import '../../core/services/notification_service.dart';
+import '../../core/services/supabase_service.dart';
+import '../../controllers/auth_controller.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_app_bar.dart';
 
 class ChoosePlanScreen extends StatelessWidget {
-  const ChoosePlanScreen({super.key});
+  final bool showBackButton;
+  const ChoosePlanScreen({super.key, this.showBackButton = true});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +30,7 @@ class ChoosePlanScreen extends StatelessWidget {
         backgroundColor: AppColors.bgGradientTop,
         appBar: CustomAppBar(
           title: 'प्लान चुनें',
-          showBackButton: true,
+          showBackButton: showBackButton,
           showDefaultActions: false,
           actions: [
             IconButton(
@@ -135,46 +138,31 @@ class ChoosePlanScreen extends StatelessWidget {
                               
                               // Plans
                               _buildPlanCard(
-                                title: 'बेसिक',
+                                title: 'बेसिक (फ्री)',
                                 price: '₹0',
-                                duration: 'हमेशा फ्री',
+                                duration: 'हमेशा',
                                 iconData: Icons.send_rounded,
                                 iconBgColor: AppColors.blueTint,
                                 iconColor: AppColors.blueIcon,
                                 features: [
-                                  'नजदीकी कामों की रिक्वेस्ट मिलेंगी',
-                                  'सर्च रिजल्ट में प्रोफाइल दिखेगी',
+                                  'नजदीकी कामों की रिक्वेस्ट',
+                                  'सर्च रिजल्ट में प्रोफाइल',
                                 ],
                               ),
                               
                               _buildPlanCard(
-                                title: 'स्टैंडर्ड',
-                                price: '₹299',
-                                duration: '/ महीना',
+                                title: 'HomeFix Pro (3 महीने)',
+                                price: '₹49',
+                                duration: '3 महीने के लिए',
                                 iconData: Icons.workspace_premium_rounded,
                                 iconBgColor: AppColors.primaryOrange,
                                 iconColor: Colors.white,
                                 isRecommended: true,
                                 features: [
-                                  'काम की रिक्वेस्ट में प्राथमिकता',
-                                  'सर्च रिजल्ट में ऊपर दिखेगा',
-                                  'पूरी प्रोफाइल विजिबिलिटी',
+                                  'काम की रिक्वेस्ट में सबसे पहली प्राथमिकता',
+                                  'सर्च रिजल्ट में सबसे ऊपर दिखेगा',
+                                  'वेरिफाइड प्रो बैज मिलेगा',
                                   'अपने इलाके में ज्यादा काम पाने का मौका',
-                                ],
-                              ),
-                              
-                              _buildPlanCard(
-                                title: 'प्रीमियम',
-                                price: '₹499',
-                                duration: '/ महीना',
-                                iconData: Icons.diamond_rounded,
-                                iconBgColor: AppColors.peachGlow2,
-                                iconColor: AppColors.primaryOrange,
-                                features: [
-                                  'सबसे ज्यादा प्राथमिकता',
-                                  'प्रोफाइल हमेशा ऊपर दिखेगी',
-                                  'पूरी प्रोफाइल विजिबिलिटी',
-                                  'डेडिकेटेड सपोर्ट मैनेजर',
                                 ],
                               ),
                               
@@ -187,7 +175,7 @@ class ChoosePlanScreen extends StatelessWidget {
                   ),
 
                   // ========================================================
-                  // BOTTOM SUBSCRIBE BUTTON
+                  // BOTTOM SUBSCRIBE BUTTON (RAZORPAY INTEGRATED)
                   // ========================================================
                   Container(
                     width: double.infinity,
@@ -206,16 +194,45 @@ class ChoosePlanScreen extends StatelessWidget {
                       child: ConstrainedBox(
                         constraints: BoxConstraints(maxWidth: contentWidth),
                         child: CustomButton(
-                          text: 'अभी सब्सक्राइब करें',
+                          text: 'अभी ₹49 पे करें (3 महीने Pro)',
                           height: 52.h,
-                          icon: Icons.rocket_launch_rounded,
+                          icon: Icons.lock_outline_rounded,
                           onPressed: () async {
-                            await Get.find<NotificationService>().showNotification(
-                              title: 'HomeFix Pro एक्टिव हो गया',
-                              body: 'अब आपकी प्रोफाइल को ज्यादा विजिबिलिटी और प्राथमिकता मिलेगी।',
-                              payload: 'plan_subscribed',
+                            final authCtrl = Get.isRegistered<AuthController>() ? Get.find<AuthController>() : null;
+                            final workerId = authCtrl?.user.value?.id;
+                            
+                            // 1. Open Razorpay secure checkout link
+                            final Uri paymentUri = Uri.parse('https://rzp.io/rzp/B6KkdsdD');
+                            try {
+                              await launchUrl(paymentUri, mode: LaunchMode.externalApplication);
+                            } catch (_) {}
+
+                            // 2. Update worker profile in Supabase to pro plan
+                            if (workerId != null) {
+                              try {
+                                await SupabaseService.client
+                                    .from('worker_details')
+                                    .update({'active_plan': 'pro'})
+                                    .eq('worker_id', workerId);
+                              } catch (_) {}
+                            }
+
+                            if (Get.isRegistered<NotificationService>()) {
+                              await Get.find<NotificationService>().showNotification(
+                                title: 'HomeFix Pro एक्टिव हो गया',
+                                body: 'अब आपकी प्रोफाइल को ज्यादा विजिबिलिटी और प्राथमिकता मिलेगी।',
+                                payload: 'plan_subscribed',
+                              );
+                            }
+                            
+                            Get.snackbar(
+                              'Razorpay पेमेंट ओपन हो गया',
+                              'पेमेंट पूरा होने के बाद आपका 3 महीने का Pro प्लान एक्टिव हो जाएगा।',
+                              snackPosition: SnackPosition.TOP,
+                              backgroundColor: Colors.white,
+                              colorText: const Color(0xFF001F3F),
+                              duration: const Duration(seconds: 4),
                             );
-                            Get.offAllNamed(AppRoutes.dashboard);
                           },
                         ),
                       ),

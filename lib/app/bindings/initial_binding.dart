@@ -4,6 +4,7 @@ import '../../core/services/storage_service.dart';
 import '../../core/services/notification_service.dart';
 import '../../data/repositories/auth_repository.dart';
 import '../../data/repositories/booking_repository.dart';
+import '../../data/repositories/service_repository.dart';
 import '../../data/repositories/property_repository.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/booking_controller.dart';
@@ -23,11 +24,15 @@ class InitialBinding extends Bindings {
 
     // Repositories
     Get.lazyPut<AuthRepository>(
-      () => AuthRepository(apiClient: Get.find<ApiClient>()),
+      () => AuthRepository(),
       fenix: true,
     );
     Get.lazyPut<BookingRepository>(
-      () => BookingRepository(apiClient: Get.find<ApiClient>()),
+      () => BookingRepository(),
+      fenix: true,
+    );
+    Get.lazyPut<ServiceRepository>(
+      () => ServiceRepository(),
       fenix: true,
     );
     Get.lazyPut<PropertyRepository>(

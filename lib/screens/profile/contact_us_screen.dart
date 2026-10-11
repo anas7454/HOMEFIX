@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../widgets/custom_app_bar.dart';
+import '../../core/utils/helpers.dart';
 
 class ContactUsScreen extends StatelessWidget {
   const ContactUsScreen({Key? key}) : super(key: key);
@@ -172,6 +173,7 @@ class ContactUsScreen extends StatelessWidget {
                 title: 'Call Us',
                 subtitle: 'Talk directly to our support team',
                 value: '+91 98765 43210',
+                onTap: () => Helpers.makePhoneCall('+919876543210'),
               ),
               
               _buildContactCard(
@@ -180,6 +182,7 @@ class ContactUsScreen extends StatelessWidget {
                 title: 'Chat on WhatsApp',
                 subtitle: 'Message on WhatsApp for a quick reply',
                 value: '+91 98765 43210',
+                onTap: () => Helpers.openWhatsApp('+919876543210'),
               ),
               
               _buildContactCard(
@@ -254,25 +257,29 @@ class ContactUsScreen extends StatelessWidget {
     required String title,
     required String subtitle,
     required String value,
+    VoidCallback? onTap,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.02),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: iconBgColor,
               shape: BoxShape.circle,
@@ -316,6 +323,7 @@ class ContactUsScreen extends StatelessWidget {
           const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
         ],
       ),
+    ),
     );
   }
 }

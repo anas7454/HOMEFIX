@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import '../app/routes/app_routes.dart';
 import '../core/utils/helpers.dart';
 import '../core/utils/validators.dart';
+import 'auth_controller.dart';
 
 class BasicInfoController extends GetxController {
   final fullNameController = TextEditingController();
@@ -27,11 +28,21 @@ class BasicInfoController extends GetxController {
     'Painting',
     'Pest Control'
   ];
+
+  @override
+  void onInit() {
+    super.onInit();
+    if (Get.isRegistered<AuthController>()) {
+      final authCtrl = Get.find<AuthController>();
+      final phone = authCtrl.userPhoneClean;
+      if (phone.isNotEmpty) {
+        phoneController.text = phone;
+      }
+    }
+  }
+
   @override
   void onClose() {
-    fullNameController.dispose();
-    phoneController.dispose();
-    dobController.dispose();
     super.onClose();
   }
 
@@ -48,15 +59,15 @@ class BasicInfoController extends GetxController {
     try {
       final XFile? pickedFile = await _imagePicker.pickImage(
         source: source,
-        maxWidth: 1024,
-        maxHeight: 1024,
-        imageQuality: 85,
+        maxWidth: 512,
+        maxHeight: 512,
+        imageQuality: 75,
       );
 
       if (pickedFile != null) {
         profileImagePath.value = pickedFile.path;
         Helpers.showSnackbar(
-          message: 'Profile photo updated successfully!',
+          message: 'Profile photo selected successfully!',
           isError: false,
         );
       }
@@ -113,14 +124,23 @@ class BasicInfoController extends GetxController {
   }
 
   // Form Validation & Navigation
-  void onContinue() {
+  Future<void> onContinue() async {
     final fullName = fullNameController.text.trim();
     final phone = phoneController.text.trim();
     final dob = dobController.text.trim();
     final gender = selectedGender.value.trim();
     final category = selectedCategory.value.trim();
 
-    // 1. Full Name Validation (Capitalize, No numbers/special characters)
+    // 0. Profile Photo Validation (Mandatory for Workers)
+    if (profileImagePath.value.trim().isEmpty) {
+      Helpers.showSnackbar(
+        message: 'Profile photo is mandatory. Please upload your profile photo.',
+        isError: true,
+      );
+      return;
+    }
+
+    // 1. Full Name Validation
     if (fullName.isEmpty) {
       Helpers.showSnackbar(
         message: 'Please enter your Full Name',
@@ -146,7 +166,7 @@ class BasicInfoController extends GetxController {
       return;
     }
 
-    // 2. Mobile Number Validation (Strictly 10 digits as in Login Screen)
+    // 2. Mobile Number Validation
     if (phone.isEmpty) {
       Helpers.showSnackbar(
         message: 'Please enter your 10-digit mobile number',
@@ -172,8 +192,7 @@ class BasicInfoController extends GetxController {
       return;
     }
 
-
-    // 4. Date of Birth Validation (Mandatory)
+    // 3. Date of Birth Validation
     if (dob.isEmpty) {
       Helpers.showSnackbar(
         message: 'Date of Birth is mandatory. Please select your DOB.',
@@ -182,7 +201,7 @@ class BasicInfoController extends GetxController {
       return;
     }
 
-    // 5. Gender Validation (Mandatory)
+    // 4. Gender Validation
     if (gender.isEmpty) {
       Helpers.showSnackbar(
         message: 'Gender is mandatory. Please select your gender.',
@@ -191,7 +210,7 @@ class BasicInfoController extends GetxController {
       return;
     }
 
-    // 6. Category Validation (Mandatory)
+    // 5. Category Validation
     if (category.isEmpty) {
       Helpers.showSnackbar(
         message: 'Category is mandatory. Please select your category.',
@@ -200,11 +219,46 @@ class BasicInfoController extends GetxController {
       return;
     }
 
-    // All validations passed -> proceed
+    // All validations passed -> Save basic info and proceed
     isLoading.value = true;
-    Future.delayed(const Duration(milliseconds: 300), () {
-      isLoading.value = false;
+    try {
+      if (Get.isRegistered<AuthController>()) {
+        final authCtrl = Get.find<AuthController>();
+        var userId = authCtrl.user.value?.id;
+        if (userId == null || !userId.contains('-')) {
+          userId = Helpers.generateUuid();
+          if (authCtrl.user.value != null) {
+            authCtrl.user.value = authCtrl.user.value!.copyWith(id: userId);
+          }
+        }
+        if (userId.isNotEmpty) {
+          String? avatarUrl;
+          if (profileImagePath.value.trim().isNotEmpty) {
+            avatarUrl = await authCtrl.authRepository.processAvatar(
+              userId: userId,
+              filePath: profileImagePath.value.trim(),
+            );
+          }
+
+          await authCtrl.authRepository.updateProfile(
+            id: userId,
+            fullName: fullName,
+            avatarUrl: avatarUrl,
+          );
+
+          authCtrl.user.value = authCtrl.user.value?.copyWith(
+            name: fullName,
+            avatar: avatarUrl ?? authCtrl.user.value?.avatar,
+          );
+        }
+      }
+
       Get.toNamed(AppRoutes.workDetails);
-    });
+    } catch (e) {
+      debugPrint('Error saving basic info: $e');
+      Get.toNamed(AppRoutes.workDetails);
+    } finally {
+      isLoading.value = false;
+    }
   }
 }
