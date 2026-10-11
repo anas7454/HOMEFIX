@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../widgets/app_avatar.dart';
+import '../../controllers/auth_controller.dart';
 import '../../data/repositories/service_repository.dart';
+import '../../data/repositories/booking_repository.dart';
 import '../../core/utils/helpers.dart';
 import '../../core/services/location_service.dart';
 
@@ -35,29 +37,34 @@ class _CategoryWorkersScreenState extends State<CategoryWorkersScreen> {
 
   Future<void> _loadWorkers() async {
     setState(() => _isLoading = true);
-    double? userLat;
-    double? userLng;
-    try {
-      final pos = await LocationService.getCurrentPosition();
-      if (pos != null) {
-        userLat = pos.latitude;
-        userLng = pos.longitude;
-      }
-    } catch (_) {}
 
     final catToFilter = selectedCategory == 'All' ? null : selectedCategory;
-    final data = await _serviceRepository.fetchWorkers(
+    final workers = await _serviceRepository.fetchWorkers(
       category: catToFilter,
-      userLatitude: userLat,
-      userLongitude: userLng,
-      maxRadiusKm: 20.0,
     );
+
     if (mounted) {
       setState(() {
         _isLoading = false;
-        _realWorkers = data;
+        _realWorkers = workers;
       });
     }
+
+    // Enrich with distances in background
+    LocationService.getCurrentPosition().then((pos) async {
+      if (pos != null && mounted) {
+        final enriched = await _serviceRepository.fetchWorkers(
+          category: catToFilter,
+          userLatitude: pos.latitude,
+          userLongitude: pos.longitude,
+        );
+        if (mounted && enriched.isNotEmpty) {
+          setState(() {
+            _realWorkers = enriched;
+          });
+        }
+      }
+    }).catchError((_) {});
   }
 
   @override
@@ -225,6 +232,7 @@ class _CategoryWorkersScreenState extends State<CategoryWorkersScreen> {
                               skills: worker['skills'] ?? '',
                               image: worker['image'] ?? worker['avatar'] ?? 'https://i.pravatar.cc/150?img=11',
                               phone: worker['phone'],
+                              workerId: worker['id'],
                             );
                           },
                         ),
@@ -245,7 +253,44 @@ class _CategoryWorkersScreenState extends State<CategoryWorkersScreen> {
     required String skills,
     required String image,
     String? phone,
+    String? workerId,
   }) {
+    void handleContact(String method) {
+      if (phone != null && phone.isNotEmpty) {
+        // 1. Log Inquiry so worker receives an inquiry card with customer name & number
+        final authCtrl = Get.isRegistered<AuthController>() ? Get.find<AuthController>() : null;
+        final currentUser = authCtrl?.user.value;
+        final customerName = (currentUser?.name.isNotEmpty == true &&
+                currentUser!.name != 'User' &&
+                currentUser.name != 'Service Worker')
+            ? currentUser.name
+            : 'HomeFix Customer';
+        final customerPhone = (currentUser?.phone?.isNotEmpty == true)
+            ? currentUser!.phone!
+            : (authCtrl?.fullPhoneNumber.isNotEmpty == true
+                ? authCtrl!.fullPhoneNumber
+                : 'Customer');
+
+        final bookingRepo = BookingRepository();
+        bookingRepo.logInquiry(
+          workerId: workerId,
+          workerPhone: phone,
+          customerId: currentUser?.id,
+          customerName: customerName,
+          customerPhone: customerPhone,
+          location: location,
+          contactMethod: method,
+        );
+
+        // 2. Open Call or WhatsApp
+        if (method == 'Call') {
+          Helpers.makePhoneCall(phone);
+        } else {
+          Helpers.openWhatsApp(phone);
+        }
+      }
+    }
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -374,9 +419,7 @@ class _CategoryWorkersScreenState extends State<CategoryWorkersScreen> {
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () {
-                    Helpers.makePhoneCall(phone);
-                  },
+                  onPressed: () => handleContact('Call'),
                   icon: const Icon(Icons.phone, color: Colors.orange, size: 16),
                   label: const Text('Call', style: TextStyle(color: Colors.orange)),
                   style: OutlinedButton.styleFrom(
@@ -389,9 +432,7 @@ class _CategoryWorkersScreenState extends State<CategoryWorkersScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: ElevatedButton.icon(
-                  onPressed: () {
-                    Helpers.openWhatsApp(phone);
-                  },
+                  onPressed: () => handleContact('WhatsApp'),
                   icon: const Icon(Icons.chat, color: Colors.white, size: 16),
                   label: const Text('WhatsApp'),
                   style: ElevatedButton.styleFrom(

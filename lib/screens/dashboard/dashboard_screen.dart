@@ -4,6 +4,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'category_workers_screen.dart';
 import '../../controllers/auth_controller.dart';
 import '../../data/repositories/service_repository.dart';
+import '../../data/repositories/booking_repository.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../widgets/app_avatar.dart';
 import '../plans/choose_plan_screen.dart';
@@ -126,6 +127,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final ServiceRepository _serviceRepository = ServiceRepository();
   List<Map<String, dynamic>> _topWorkers = [];
   bool _isLoadingWorkers = true;
+  String _currentCity = 'Locating...';
+  String _currentSubArea = 'Fetching address';
 
   @override
   void initState() {
@@ -135,21 +138,29 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadTopWorkers() async {
     setState(() => _isLoadingWorkers = true);
-    double? userLat;
-    double? userLng;
-    try {
-      final pos = await LocationService.getCurrentPosition();
-      if (pos != null) {
-        userLat = pos.latitude;
-        userLng = pos.longitude;
-      }
-    } catch (_) {}
 
-    final workers = await _serviceRepository.fetchWorkers(
-      userLatitude: userLat,
-      userLongitude: userLng,
-      maxRadiusKm: 20.0,
-    );
+    // 1. Fetch workers immediately so list loads fast
+    final workersFuture = _serviceRepository.fetchWorkers();
+
+    // 2. Fetch location in parallel
+    LocationService.getCurrentPosition().then((pos) async {
+      if (pos != null && mounted) {
+        final address = await LocationService.getAddressFromCoordinates(
+          latitude: pos.latitude,
+          longitude: pos.longitude,
+        );
+        if (mounted) {
+          setState(() {
+            _currentCity = address['city'] ?? 'Nearby';
+            _currentSubArea = address['subArea']?.isNotEmpty == true
+                ? address['subArea']!
+                : (address['state'] ?? 'Current Location');
+          });
+        }
+      }
+    }).catchError((_) {});
+
+    final workers = await workersFuture;
     if (mounted) {
       setState(() {
         _isLoadingWorkers = false;
@@ -171,23 +182,41 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: Colors.black.withOpacity(0.05),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.location_on, color: Color(0xFF001F3F), size: 20),
+              child: const Icon(Icons.location_on, color: Colors.deepOrange, size: 20),
             ),
             const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: const [
-                    Text('Delhi', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: Color(0xFF001F3F))),
-                    SizedBox(width: 4),
-                    Icon(Icons.keyboard_arrow_down, size: 16, color: Color(0xFF001F3F)),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                Text('Sector 62, Noida', style: TextStyle(color: const Color(0xFF001F3F).withOpacity(0.7), fontSize: 11, fontWeight: FontWeight.w500)),
-              ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          _currentCity,
+                          style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: Color(0xFF001F3F)),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(Icons.keyboard_arrow_down, size: 16, color: Color(0xFF001F3F)),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    _currentSubArea,
+                    style: TextStyle(
+                      color: const Color(0xFF001F3F).withOpacity(0.7),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -433,6 +462,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             skills: w['skills'] ?? '',
                             image: w['image'] ?? w['avatar'] ?? 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=200&auto=format&fit=crop',
                             phone: w['phone'],
+                            workerId: w['id'],
                           );
                         }).toList(),
                       ),
@@ -500,7 +530,44 @@ class _HomeScreenState extends State<HomeScreen> {
     required String skills,
     required String image,
     String? phone,
+    String? workerId,
   }) {
+    void handleContact(String method) {
+      if (phone != null && phone.isNotEmpty) {
+        // 1. Log Inquiry so worker receives an inquiry card with customer name & number
+        final authCtrl = Get.isRegistered<AuthController>() ? Get.find<AuthController>() : null;
+        final currentUser = authCtrl?.user.value;
+        final customerName = (currentUser?.name.isNotEmpty == true &&
+                currentUser!.name != 'User' &&
+                currentUser.name != 'Service Worker')
+            ? currentUser.name
+            : 'HomeFix Customer';
+        final customerPhone = (currentUser?.phone?.isNotEmpty == true)
+            ? currentUser!.phone!
+            : (authCtrl?.fullPhoneNumber.isNotEmpty == true
+                ? authCtrl!.fullPhoneNumber
+                : 'Customer');
+
+        final bookingRepo = BookingRepository();
+        bookingRepo.logInquiry(
+          workerId: workerId,
+          workerPhone: phone,
+          customerId: currentUser?.id,
+          customerName: customerName,
+          customerPhone: customerPhone,
+          location: location,
+          contactMethod: method,
+        );
+
+        // 2. Open Call or WhatsApp
+        if (method == 'Call') {
+          Helpers.makePhoneCall(phone);
+        } else {
+          Helpers.openWhatsApp(phone);
+        }
+      }
+    }
+
     return Container(
       width: double.infinity, margin: const EdgeInsets.only(bottom: 8, top: 4),
       padding: const EdgeInsets.all(16),
@@ -629,9 +696,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () {
-                    Helpers.makePhoneCall(phone);
-                  },
+                  onPressed: () => handleContact('Call'),
                   icon: const Icon(Icons.phone, color: Colors.orange, size: 16),
                   label: const Text('Call', style: TextStyle(color: Colors.orange)),
                   style: OutlinedButton.styleFrom(
@@ -644,9 +709,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: ElevatedButton.icon(
-                  onPressed: () {
-                    Helpers.openWhatsApp(phone);
-                  },
+                  onPressed: () => handleContact('WhatsApp'),
                   icon: const Icon(Icons.chat, color: Colors.white, size: 16),
                   label: const Text('WhatsApp'),
                   style: ElevatedButton.styleFrom(

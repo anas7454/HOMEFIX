@@ -26,13 +26,60 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void initState() {
     super.initState();
+    _prefillData();
+    _fetchLatestProfile();
+  }
+
+  void _prefillData() {
     if (Get.isRegistered<AuthController>()) {
-      final user = Get.find<AuthController>().user.value;
-      if (user != null) {
-        _nameController.text = user.name;
-        _emailController.text = user.email ?? '';
-        _phoneController.text = user.phone ?? '';
+      final authCtrl = Get.find<AuthController>();
+      final user = authCtrl.user.value;
+
+      final phone = (user?.phone?.isNotEmpty ?? false)
+          ? user!.phone!
+          : (authCtrl.fullPhoneNumber.isNotEmpty
+              ? authCtrl.fullPhoneNumber
+              : authCtrl.userPhoneClean);
+
+      if (phone.isNotEmpty) {
+        _phoneController.text = phone;
       }
+
+      if (user != null) {
+        if (user.name.isNotEmpty && user.name != 'User' && user.name != 'Service Worker') {
+          _nameController.text = user.name;
+        } else if (user.name.isNotEmpty) {
+          _nameController.text = user.name;
+        }
+        _emailController.text = user.email ?? '';
+      }
+    }
+  }
+
+  Future<void> _fetchLatestProfile() async {
+    if (!Get.isRegistered<AuthController>()) return;
+    final authCtrl = Get.find<AuthController>();
+    final current = authCtrl.user.value;
+    if (current == null) return;
+
+    try {
+      final fresh = await authCtrl.authRepository.getProfile(current.id);
+      if (fresh != null && mounted) {
+        authCtrl.user.value = fresh;
+        await authCtrl.saveUserLocally(fresh);
+        if (_nameController.text.isEmpty && fresh.name.isNotEmpty) {
+          _nameController.text = fresh.name;
+        }
+        if (_emailController.text.isEmpty && (fresh.email?.isNotEmpty ?? false)) {
+          _emailController.text = fresh.email!;
+        }
+        if (_phoneController.text.isEmpty && (fresh.phone?.isNotEmpty ?? false)) {
+          _phoneController.text = fresh.phone!;
+        }
+        setState(() {});
+      }
+    } catch (e) {
+      debugPrint('Error fetching fresh profile: $e');
     }
   }
 
@@ -141,11 +188,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           }
 
           final email = _emailController.text.trim();
+          final phone = _phoneController.text.trim();
 
           final updatedUser = await authCtrl.authRepository.updateProfile(
             id: currentUser.id,
             fullName: name,
             avatarUrl: avatarUrl,
+            phone: phone.isNotEmpty ? phone : currentUser.phone,
             email: email.isNotEmpty ? email : null,
           );
 
@@ -155,6 +204,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             authCtrl.user.value = currentUser.copyWith(
               name: name,
               avatar: avatarUrl,
+              phone: phone.isNotEmpty ? phone : currentUser.phone,
               email: email.isNotEmpty ? email : null,
             );
           }
@@ -255,8 +305,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               _buildTextField('Full Name', _nameController, Icons.person_outline),
               const SizedBox(height: 18),
               _buildTextField('Email Address', _emailController, Icons.email_outlined, keyboardType: TextInputType.emailAddress),
-              const SizedBox(height: 18),
-              _buildTextField('Phone Number (Locked)', _phoneController, Icons.phone_outlined, enabled: false),
+              _buildTextField(
+                _phoneController.text.trim().isNotEmpty
+                    ? 'Phone Number (Verified)'
+                    : 'Phone Number',
+                _phoneController,
+                Icons.phone_outlined,
+                enabled: _phoneController.text.trim().isEmpty,
+                keyboardType: TextInputType.phone,
+              ),
               const SizedBox(height: 36),
               SizedBox(
                 width: double.infinity,

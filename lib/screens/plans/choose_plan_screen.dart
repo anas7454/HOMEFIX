@@ -8,6 +8,7 @@ import '../../app/theme/app_text_styles.dart';
 import '../../core/services/notification_service.dart';
 import '../../core/services/supabase_service.dart';
 import '../../controllers/auth_controller.dart';
+import '../../app/routes/app_routes.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_app_bar.dart';
 
@@ -29,17 +30,17 @@ class ChoosePlanScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: AppColors.bgGradientTop,
         appBar: CustomAppBar(
-          title: 'प्लान चुनें',
+          title: 'Choose Plan',
           showBackButton: showBackButton,
           showDefaultActions: false,
           actions: [
             IconButton(
               icon: Icon(Icons.help_outline, color: const Color(0xFF001F3F), size: 24.sp),
-              tooltip: 'मदद',
+              tooltip: 'Help',
               onPressed: () {
                 Get.snackbar(
-                  'मदद',
-                  'अपनी जरूरत के हिसाब से प्लान चुनें। आप बाद में भी प्लान बदल सकते हैं।',
+                  'Help',
+                  'Choose a plan that fits your business needs. You can upgrade anytime.',
                   snackPosition: SnackPosition.BOTTOM,
                 );
               },
@@ -89,7 +90,7 @@ class ChoosePlanScreen extends StatelessWidget {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            'HomeFix Pro से\nज्यादा काम पाएं',
+                                            'Get More Work with\nHomeFix Pro',
                                             style: AppTextStyles.headingMedium.copyWith(
                                               color: AppColors.primaryDark,
                                               height: 1.2,
@@ -98,7 +99,7 @@ class ChoosePlanScreen extends StatelessWidget {
                                           ),
                                           SizedBox(height: 8.h),
                                           Text(
-                                            'आपकी प्रोफाइल ज्यादा लोगों को दिखेगी और नजदीकी कामों में प्राथमिकता मिलेगी।',
+                                            'Boost your profile visibility and get top priority for customer bookings in your area.',
                                             style: AppTextStyles.bodyMedium.copyWith(
                                               color: AppColors.textTitle,
                                               fontSize: 11.sp,
@@ -128,7 +129,7 @@ class ChoosePlanScreen extends StatelessWidget {
                               
                               SizedBox(height: 18.h),
                               Text(
-                                'आपको क्या दिखेगा',
+                                'How It Works',
                                 style: AppTextStyles.headingSmall.copyWith(fontSize: 16.sp),
                               ),
                               SizedBox(height: 8.h),
@@ -138,31 +139,31 @@ class ChoosePlanScreen extends StatelessWidget {
                               
                               // Plans
                               _buildPlanCard(
-                                title: 'बेसिक (फ्री)',
+                                title: 'Basic (Free)',
                                 price: '₹0',
-                                duration: 'हमेशा',
+                                duration: 'Forever',
                                 iconData: Icons.send_rounded,
                                 iconBgColor: AppColors.blueTint,
                                 iconColor: AppColors.blueIcon,
                                 features: [
-                                  'नजदीकी कामों की रिक्वेस्ट',
-                                  'सर्च रिजल्ट में प्रोफाइल',
+                                  'Receive nearby job requests',
+                                  'Standard search listing',
                                 ],
                               ),
                               
                               _buildPlanCard(
-                                title: 'HomeFix Pro (3 महीने)',
+                                title: 'HomeFix Pro (3 Months)',
                                 price: '₹49',
-                                duration: '3 महीने के लिए',
+                                duration: 'For 3 Months',
                                 iconData: Icons.workspace_premium_rounded,
                                 iconBgColor: AppColors.primaryOrange,
                                 iconColor: Colors.white,
                                 isRecommended: true,
                                 features: [
-                                  'काम की रिक्वेस्ट में सबसे पहली प्राथमिकता',
-                                  'सर्च रिजल्ट में सबसे ऊपर दिखेगा',
-                                  'वेरिफाइड प्रो बैज मिलेगा',
-                                  'अपने इलाके में ज्यादा काम पाने का मौका',
+                                  'Top priority in job requests',
+                                  'Rank #1 in search results',
+                                  'Verified Pro badge on profile',
+                                  'Maximum job leads in your locality',
                                 ],
                               ),
                               
@@ -194,7 +195,7 @@ class ChoosePlanScreen extends StatelessWidget {
                       child: ConstrainedBox(
                         constraints: BoxConstraints(maxWidth: contentWidth),
                         child: CustomButton(
-                          text: 'अभी ₹49 पे करें (3 महीने Pro)',
+                          text: 'Pay ₹49 Now (3 Months Pro)',
                           height: 52.h,
                           icon: Icons.lock_outline_rounded,
                           onPressed: () async {
@@ -219,20 +220,24 @@ class ChoosePlanScreen extends StatelessWidget {
 
                             if (Get.isRegistered<NotificationService>()) {
                               await Get.find<NotificationService>().showNotification(
-                                title: 'HomeFix Pro एक्टिव हो गया',
-                                body: 'अब आपकी प्रोफाइल को ज्यादा विजिबिलिटी और प्राथमिकता मिलेगी।',
+                                title: 'HomeFix Pro Activated',
+                                body: 'Your profile now has maximum visibility and priority.',
                                 payload: 'plan_subscribed',
                               );
                             }
                             
                             Get.snackbar(
-                              'Razorpay पेमेंट ओपन हो गया',
-                              'पेमेंट पूरा होने के बाद आपका 3 महीने का Pro प्लान एक्टिव हो जाएगा।',
+                              'Pro Plan Activated',
+                              'Your 3-month Pro plan is now active.',
                               snackPosition: SnackPosition.TOP,
                               backgroundColor: Colors.white,
                               colorText: const Color(0xFF001F3F),
-                              duration: const Duration(seconds: 4),
+                              duration: const Duration(seconds: 3),
                             );
+
+                            // Direct navigation to App Dashboard
+                            await Future.delayed(const Duration(milliseconds: 600));
+                            Get.offAllNamed(AppRoutes.dashboard);
                           },
                         ),
                       ),
@@ -249,9 +254,9 @@ class ChoosePlanScreen extends StatelessWidget {
 
   Widget _buildFlowInfo() {
     final items = [
-      (Icons.person_search_rounded, 'ग्राहक आपकी प्रोफाइल और रेटिंग देखेंगे'),
-      (Icons.notifications_active_rounded, 'नया काम आते ही नोटिफिकेशन मिलेगा'),
-      (Icons.handshake_rounded, 'काम स्वीकार करके बुकिंग पूरी करें'),
+      (Icons.person_search_rounded, 'Customers discover your profile & verified ratings'),
+      (Icons.notifications_active_rounded, 'Instant alerts when new job requests arrive'),
+      (Icons.handshake_rounded, 'Accept inquiries and complete bookings easily'),
     ];
 
     return Column(
@@ -418,7 +423,7 @@ class ChoosePlanScreen extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  'सबसे अच्छा',
+                  'BEST VALUE',
                   style: TextStyle(
                     fontFamily: AppTextStyles.fontFamily,
                     color: Colors.white,

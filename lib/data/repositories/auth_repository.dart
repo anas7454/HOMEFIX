@@ -90,7 +90,7 @@ class AuthRepository {
     }
   }
 
-  /// Update Profile Details (Upsert ensures row exists even if id changed)
+  /// Update Profile Details
   Future<UserModel?> updateProfile({
     required String id,
     String? fullName,
@@ -98,16 +98,42 @@ class AuthRepository {
     String? phone,
     String? email,
   }) async {
-    final Map<String, dynamic> data = {'id': id};
-    if (fullName != null && fullName.isNotEmpty) data['full_name'] = fullName;
-    if (avatarUrl != null && avatarUrl.isNotEmpty) data['avatar_url'] = avatarUrl;
-    if (phone != null && phone.isNotEmpty) data['phone'] = phone;
-    if (email != null && email.isNotEmpty) data['email'] = email;
+    final Map<String, dynamic> updateData = {};
+    if (fullName != null && fullName.isNotEmpty) updateData['full_name'] = fullName;
+    if (avatarUrl != null && avatarUrl.isNotEmpty) updateData['avatar_url'] = avatarUrl;
+    if (phone != null && phone.isNotEmpty) updateData['phone'] = phone;
+    if (email != null && email.isNotEmpty) updateData['email'] = email;
 
     try {
+      // 1. Try UPDATE first.
+      // Unlike upsert, update does not enforce NOT NULL constraints on other unchanged columns (e.g. phone).
+      if (updateData.isNotEmpty) {
+        final updateResponse = await SupabaseService.client
+            .from('profiles')
+            .update(updateData)
+            .eq('id', id)
+            .select()
+            .maybeSingle();
+
+        if (updateResponse != null) {
+          return UserModel.fromJson(updateResponse);
+        }
+      }
+
+      // 2. Fallback: if row does not exist, fetch existing profile or provide fallback phone before upserting
+      final existing = await getProfile(id);
+      final Map<String, dynamic> insertData = {
+        'id': id,
+        ...updateData,
+      };
+      final effectivePhone = phone ?? existing?.phone;
+      if (effectivePhone != null && effectivePhone.isNotEmpty) {
+        insertData['phone'] = effectivePhone;
+      }
+
       final response = await SupabaseService.client
           .from('profiles')
-          .upsert(data, onConflict: 'id')
+          .upsert(insertData, onConflict: 'id')
           .select()
           .maybeSingle();
 
@@ -137,7 +163,6 @@ class AuthRepository {
     // 1. FIRST make sure the profile exists in profiles table
     try {
       final Map<String, dynamic> profileData = {
-        'id': workerId,
         'role': 'worker',
         'is_profile_completed': true,
       };
@@ -151,10 +176,22 @@ class AuthRepository {
         profileData['phone'] = phone;
       }
 
-      await SupabaseService.client.from('profiles').upsert(
-        profileData,
-        onConflict: 'id',
-      );
+      final updateRes = await SupabaseService.client
+          .from('profiles')
+          .update(profileData)
+          .eq('id', workerId)
+          .select()
+          .maybeSingle();
+
+      if (updateRes == null) {
+        final existing = await getProfile(workerId);
+        profileData['id'] = workerId;
+        profileData['phone'] = phone ?? existing?.phone ?? '';
+        await SupabaseService.client.from('profiles').upsert(
+          profileData,
+          onConflict: 'id',
+        );
+      }
     } catch (e) {
       debugPrint('profiles initial upsert warning: $e');
     }

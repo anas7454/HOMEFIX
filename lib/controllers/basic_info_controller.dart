@@ -38,12 +38,16 @@ class BasicInfoController extends GetxController {
       if (phone.isNotEmpty) {
         phoneController.text = phone;
       }
+      final user = authCtrl.user.value;
+      if (user != null) {
+        if (fullNameController.text.isEmpty &&
+            user.name.isNotEmpty &&
+            user.name != 'User' &&
+            user.name != 'Service Worker') {
+          fullNameController.text = user.name;
+        }
+      }
     }
-  }
-
-  @override
-  void onClose() {
-    super.onClose();
   }
 
   void setGender(String gender) {
@@ -244,11 +248,13 @@ class BasicInfoController extends GetxController {
             id: userId,
             fullName: fullName,
             avatarUrl: avatarUrl,
+            phone: phone,
           );
 
           authCtrl.user.value = authCtrl.user.value?.copyWith(
             name: fullName,
             avatar: avatarUrl ?? authCtrl.user.value?.avatar,
+            phone: phone,
           );
         }
       }

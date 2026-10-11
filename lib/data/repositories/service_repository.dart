@@ -96,7 +96,9 @@ class ServiceRepository {
           'avatar': item['avatar_url'] ?? 'https://i.pravatar.cc/150?img=11',
           'skills': skills,
           'experience': details != null ? '${details['experience_years'] ?? 1}+ Years' : 'Verified',
-          'city': details?['city'] ?? 'Delhi NCR',
+          'city': (details?['city'] != null && details!['city'].toString().trim().isNotEmpty)
+              ? details['city']
+              : 'Nearby Area',
           'price': '₹${details?['hourly_rate'] ?? 299}',
           'rating': '5.0',
           'reviews': '1',

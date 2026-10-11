@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../widgets/app_avatar.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../controllers/auth_controller.dart';
+import '../../core/services/location_service.dart';
 import 'edit_profile_screen.dart';
 import 'privacy_policy_screen.dart';
 import 'terms_conditions_screen.dart';
@@ -42,7 +43,14 @@ class ProfileScreen extends StatelessWidget {
                 final displayName = (currentUser?.name.isNotEmpty ?? false)
                     ? currentUser!.name
                     : (currentUser?.isWorker ?? false ? 'HomeFix Worker' : 'HomeFix Customer');
-                final roleOrPhone = currentUser?.phone ?? '+91 98765 43210';
+                final phone = (currentUser?.phone?.isNotEmpty ?? false)
+                    ? currentUser!.phone!
+                    : (authCtrl?.fullPhoneNumber.isNotEmpty ?? false
+                        ? authCtrl!.fullPhoneNumber
+                        : (authCtrl?.userPhoneClean.isNotEmpty ?? false
+                            ? authCtrl!.userPhoneClean
+                            : ''));
+                final roleOrPhone = phone.isNotEmpty ? phone : '+91 98765 43210';
                 final roleBadge = (currentUser?.role ?? 'customer').toUpperCase();
                 final avatarUrl = currentUser?.avatar;
 
@@ -127,18 +135,28 @@ class ProfileScreen extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  const Icon(Icons.location_on, size: 12, color: Colors.deepOrange),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    'Delhi NCR, India',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      color: Colors.grey.shade700,
-                                    ),
-                                  ),
-                                ],
+                              FutureBuilder<Map<String, String>>(
+                                future: LocationService.getCurrentAddress(),
+                                builder: (context, snapshot) {
+                                  final locText = snapshot.data?['full'] ?? 'Current Location';
+                                  return Row(
+                                    children: [
+                                      const Icon(Icons.location_on, size: 12, color: Colors.deepOrange),
+                                      const SizedBox(width: 4),
+                                      Expanded(
+                                        child: Text(
+                                          locText,
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: Colors.grey.shade700,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
                               ),
                             ],
                           ),
@@ -256,8 +274,28 @@ class ProfileScreen extends StatelessWidget {
               // Logout Button
               OutlinedButton(
                 onPressed: () {
-                  final authController = Get.find<AuthController>();
-                  authController.logout();
+                  Get.defaultDialog(
+                    title: 'Logout',
+                    titleStyle: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: Color(0xFF001F3F),
+                    ),
+                    middleText: 'Are you sure you want to log out of your account?',
+                    middleTextStyle: const TextStyle(fontSize: 14, color: Colors.black87),
+                    textConfirm: 'Logout',
+                    textCancel: 'Cancel',
+                    confirmTextColor: Colors.white,
+                    buttonColor: Colors.red,
+                    cancelTextColor: const Color(0xFF001F3F),
+                    radius: 16,
+                    onConfirm: () {
+                      Get.back(); // close dialog
+                      if (Get.isRegistered<AuthController>()) {
+                        Get.find<AuthController>().logout();
+                      }
+                    },
+                  );
                 },
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.red,

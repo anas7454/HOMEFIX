@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../controllers/auth_controller.dart';
 import '../../data/repositories/booking_repository.dart';
+import '../../core/services/storage_service.dart';
 import '../../core/utils/helpers.dart';
 
 class BookingScreen extends StatefulWidget {
@@ -34,24 +35,58 @@ class _BookingScreenState extends State<BookingScreen> {
       isWorker: user?.isWorker ?? false,
     );
 
+    final List<Map<String, dynamic>> combined = [];
+
+    // 1. Include inquiries
+    try {
+      if (Get.isRegistered<StorageService>()) {
+        final storage = Get.find<StorageService>();
+        final workerKey = 'inquiries_${user?.id}';
+        final phoneKey = 'inquiries_${user?.phone}';
+        final cleanPhoneKey = 'inquiries_${user?.phone?.replaceAll('+91', '').replaceAll(' ', '').trim()}';
+        
+        final localList = storage.read(workerKey) ??
+            storage.read(phoneKey) ??
+            storage.read(cleanPhoneKey) ??
+            storage.read('inquiries_global');
+
+        if (localList is List) {
+          for (final inq in localList) {
+            if (inq is Map) {
+              combined.add({
+                'name': inq['name'] ?? 'Customer',
+                'number': inq['number'] ?? '',
+                'location': inq['location'] ?? 'Current Location',
+                'status': inq['status'] ?? 'New Inquiry',
+                'time': inq['time'] ?? 'Just now',
+              });
+            }
+          }
+        }
+      }
+    } catch (_) {}
+
+    // 2. Add remote bookings
+    for (final b in data) {
+      final customer = b['customer'] as Map<String, dynamic>?;
+      final worker = b['worker'] as Map<String, dynamic>?;
+      final service = b['service'] as Map<String, dynamic>?;
+
+      combined.add({
+        'name': (user?.isWorker ?? false)
+            ? (customer?['full_name'] ?? 'Customer')
+            : (worker?['full_name'] ?? service?['title'] ?? 'HomeFix Service'),
+        'number': (customer?['phone'] ?? worker?['phone'] ?? '+91 98765 43210'),
+        'location': b['address'] ?? 'Nearby Area',
+        'status': (b['status'] ?? 'pending').toString().capitalizeFirst ?? 'New',
+        'time': b['created_at'] != null ? 'Active' : 'Today',
+      });
+    }
+
     if (mounted) {
       setState(() {
         _isLoading = false;
-        _bookings = data.map((b) {
-          final customer = b['customer'] as Map<String, dynamic>?;
-          final worker = b['worker'] as Map<String, dynamic>?;
-          final service = b['service'] as Map<String, dynamic>?;
-
-          return {
-            'name': (user?.isWorker ?? false)
-                ? (customer?['full_name'] ?? 'Customer')
-                : (worker?['full_name'] ?? service?['title'] ?? 'HomeFix Service'),
-            'number': (customer?['phone'] ?? worker?['phone'] ?? '+91 98765 43210'),
-            'location': b['address'] ?? 'Delhi NCR',
-            'status': (b['status'] ?? 'pending').toString().capitalizeFirst ?? 'New',
-            'time': b['created_at'] != null ? 'Active' : 'Today',
-          };
-        }).toList();
+        _bookings = combined;
       });
     }
   }

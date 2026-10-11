@@ -6,6 +6,7 @@ import '../data/models/user_model.dart';
 import '../data/repositories/auth_repository.dart';
 import '../core/services/supabase_service.dart';
 import '../core/services/storage_service.dart';
+import '../core/services/notification_service.dart';
 import '../core/utils/helpers.dart';
 import '../app/routes/app_routes.dart';
 
@@ -217,6 +218,13 @@ class AuthController extends GetxController {
         user.value = matchedUser;
         await saveUserLocally(matchedUser);
 
+        // Sync FCM device push token with user profile
+        try {
+          if (Get.isRegistered<NotificationService>()) {
+            Get.find<NotificationService>().syncTokenWithBackend();
+          }
+        } catch (_) {}
+
         Helpers.showSnackbar(
           title: 'Welcome Back',
           message: 'Logged in as ${matchedUser.role.toUpperCase()}',
@@ -334,8 +342,46 @@ class AuthController extends GetxController {
     }
   }
 
-  void logout() {
-    user.value = null;
-    Get.offAllNamed(AppRoutes.auth);
+  Future<void> logout() async {
+    try {
+      isLoading.value = true;
+
+      // 1. Sign out from Supabase client
+      try {
+        await SupabaseService.client.auth.signOut();
+      } catch (e) {
+        debugPrint('Supabase signOut warning: $e');
+      }
+
+      // 2. Clear current session from local storage so next login doesn't auto-restore
+      try {
+        if (Get.isRegistered<StorageService>()) {
+          final storage = Get.find<StorageService>();
+          await storage.remove('current_user');
+        }
+      } catch (e) {
+        debugPrint('Storage clear error: $e');
+      }
+
+      // 3. Reset in-memory AuthController states
+      user.value = null;
+      phoneController.clear();
+      enteredPhoneNumber = '';
+      resetOtp();
+
+      Helpers.showSnackbar(
+        title: 'Logged Out',
+        message: 'You have been logged out successfully.',
+      );
+
+      // 4. Navigate back to Auth screen and clear navigation stack
+      Get.offAllNamed(AppRoutes.auth);
+    } catch (e) {
+      debugPrint('Logout error: $e');
+      user.value = null;
+      Get.offAllNamed(AppRoutes.auth);
+    } finally {
+      isLoading.value = false;
+    }
   }
 }
